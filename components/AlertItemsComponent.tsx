@@ -8,14 +8,19 @@ import { getUserAlerts } from '@/services/AlertService';
 type AlertProps = {
     userId: number;
     alertItems: AlertItem[];
+    setButtonStatus: (status: string) => void;
+    setIsPopupVisible: (visible: boolean) => void;
+    modifyPopup: (alertId: number) => void;
 }
 
-export const AlertItemsComponent = ({userId, alertItems}: AlertProps) => {
+export const AlertItemsComponent = ({userId, alertItems, setButtonStatus, setIsPopupVisible, modifyPopup}: AlertProps) => {
     const [localAlertItems, setLocalAlertItems] = useState<AlertItem[]>(alertItems);
 
     useEffect(() => {
         setLocalAlertItems(alertItems);        
     }, [alertItems]);
+
+    
 
     const toggleAlert = async (alertId: string, alertValue: boolean) => {
         setLocalAlertItems(prevItems => 
@@ -52,7 +57,7 @@ export const AlertItemsComponent = ({userId, alertItems}: AlertProps) => {
             data={localAlertItems}
             keyExtractor={(item: AlertItem) => item.alertId}
             renderItem={({ item }) => (
-                <TouchableOpacity onPress={() => editAlert(item)}>
+                <TouchableOpacity onPress = {() => modifyPopup(item.alertId)}>
                     <View style = {styles.alertButton}>
                         <View style = {styles.stationContainer}>
                         <Text style = {styles.itemText} numberOfLines={1} ellipsizeMode="tail">({item.lineName})({item.prefName})</Text>
