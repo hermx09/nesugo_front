@@ -1,36 +1,42 @@
 import React, { useEffect, useState } from 'react';
 import {FlatList, TouchableOpacity, View, Text, StyleSheet, Switch, Alert } from 'react-native';
-import type { AlertItem } from '@/app/(tabs)/stationList';
+import type { AlertItem } from '@/app/stationList';
 import api from '@/services/axiosInstance';
+import { getUserAlerts } from '@/services/AlertService';
+
 
 type AlertProps = {
+    userId: number;
     alertItems: AlertItem[];
 }
 
-export const AlertItemsComponent = ({alertItems}: AlertProps) => {
+export const AlertItemsComponent = ({userId, alertItems}: AlertProps) => {
     const [localAlertItems, setLocalAlertItems] = useState<AlertItem[]>(alertItems);
 
     useEffect(() => {
-        setLocalAlertItems(alertItems);
-        console.log("ローカル = " + localAlertItems);
+        setLocalAlertItems(alertItems);        
     }, [alertItems]);
-
-    const [isAlertEnabled, setIsAlertEnabled] = useState(true);
 
     const toggleAlert = async (alertId: string, alertValue: boolean) => {
         setLocalAlertItems(prevItems => 
             prevItems.map(item => 
-                item.id === alertId ? { ...item, isAlertEnabled: alertValue}: item
+                item.alertId === alertId ? { ...item, active: alertValue}: item
             ));
         try{
-            const response = await api.get('/insertAlert', {
+            const response = await api.post('/toggleAlert', {
+                alertId: alertId,
+                active: alertValue
+            },
+            {
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json'
                 }
             });
+            const alerts = await getUserAlerts(userId);
+            setLocalAlertItems(alerts);
         }catch(error){
-            console.error("検索エラー: error" + error);
+            console.error("error" + error);
         }
     }
     const currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -44,13 +50,16 @@ export const AlertItemsComponent = ({alertItems}: AlertProps) => {
             {/* 登録されたアラート */}
             <FlatList
             data={localAlertItems}
-            keyExtractor={(item) => item.id}
+            keyExtractor={(item: AlertItem) => item.alertId}
             renderItem={({ item }) => (
                 <TouchableOpacity onPress={() => editAlert(item)}>
                     <View style = {styles.alertButton}>
-                    <Text style = {styles.itemText} numberOfLines={1} ellipsizeMode="tail">{item.name}</Text>
-                    <Text style = {styles.timeText}>{ currentTime }</Text>
-                    <Switch value = { item.isAlertEnabled } onValueChange = {(value) => toggleAlert(item.id, value)} />
+                        <View style = {styles.stationContainer}>
+                        <Text style = {styles.itemText} numberOfLines={1} ellipsizeMode="tail">({item.lineName})({item.prefName})</Text>
+                        <Text style = {styles.itemText} numberOfLines={1} ellipsizeMode="tail">{item.stationName}</Text>
+                    </View>
+                    <Text style = {styles.timeText}>{ item.alertTime.slice(0, 5) }</Text>
+                    <Switch value = { item.active } onValueChange = {(value) => toggleAlert(item.alertId, value)} />
                     </View>
                 </TouchableOpacity>
             )}
@@ -77,6 +86,11 @@ const styles = StyleSheet.create({
         },
         timeText: {
             marginHorizontal: 10
+        },
+        stationContainer: {
+            flex: 1,
+            flexDirection: 'column',
+            marginRight: 10
         }
     }
 )

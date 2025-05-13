@@ -49,15 +49,24 @@ const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: numbe
 
 // アプリ起動時に位置情報の追跡を開始する関数
 export const startLocationTracking = async () => {
-  console.log("スタート");
-  const { status } = await Location.requestForegroundPermissionsAsync();
-  console.log("最初" + status);
-  const { status: bgStatus } = await Location.requestBackgroundPermissionsAsync();
-  console.log("次" + bgStatus);
+  const { status: alwaysStatus } = await Location.requestAlwaysPermissionAsync(); // 常に位置情報を許可
+  if (alwaysStatus !== 'granted') {
+    console.error('常に位置情報の許可が必要です');
+    alert("常に位置情報の許可が必要です。設定から許可してください。");
+    return;
+  }
 
-  if (status !== 'granted' || bgStatus !== 'granted') {
-    console.error('位置情報の許可が必要です');
-    alert("位置情報の許可が必要です。設定から許可してください。");
+  const { status } = await Location.requestForegroundPermissionsAsync();
+  if (status !== 'granted') {
+    console.error('フォアグラウンド位置情報の許可が必要です');
+    alert("フォアグラウンド位置情報の許可が必要です。設定から許可してください。");
+    return;
+  }
+  
+  const { status: bgStatus } = await Location.requestBackgroundPermissionsAsync();
+  if (bgStatus !== 'granted') {
+    console.error('バックグラウンド位置情報の許可が必要です');
+    alert("バックグラウンド位置情報の許可が必要です。設定から許可してください。");
     return;
   }
 

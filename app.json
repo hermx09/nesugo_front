@@ -10,9 +10,12 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": ".",
+      "bundleIdentifier": "com.nesugo",
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSLocationWhenInUseUsageDescription": "このアプリは位置情報を利用します。",
+        "NSLocationAlwaysUsageDescription": "このアプリはバックグラウンドでも位置情報を取得します。",
+        "UIBackgroundModes": ["location", "audio"]
       }
     },
     "android": {

@@ -3,23 +3,28 @@ import { View, Text, TextInput, Button, Modal, StyleSheet, FlatList, TouchableOp
 import { startLocationTracking } from '@/services/LocationService';
 import api from '@/services/axiosInstance';
 import { AlertItemsComponent } from '@/components/AlertItemsComponent';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import DateTimePicker, { DateTimePickerEvent} from '@react-native-community/datetimepicker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { jwtDecode } from 'jwt-decode';
+import * as Sound from '../services/SoundService';
+import LogoutComponent from '@/components/LogoutComponent';
 
 // 駅データの型定義
 interface Station {
     stationId: string;
     stationName: string;
     lineName: string;
-    prefName: String;
+    prefName: string;
 }
 
 // アラートアイテムの型定義
 export type AlertItem = {
-    id: string;
-    name: string;
-    isAlertEnabled: boolean;
+    alertId: string;
+    stationName: string;
+    lineName: string;
+    prefName: string;
+    alertTime: string;
+    active: boolean;
 }
 
 interface UserToken {
@@ -51,10 +56,6 @@ export default function StationList() {
         }
     }, [userId]);
 
-    const logout = async() => {
-        await AsyncStorage.removeItem('authToken');
-    }
-
     const getUserName = async() => {
         const token = await AsyncStorage.getItem('authToken');
         if (token) {
@@ -76,6 +77,15 @@ export default function StationList() {
                 }
             });
             console.log(response.data);
+            const alerts: AlertItem[] = response.data.map((item: AlertItem) => ({
+                alertId: item.alertId,
+                stationName: item.stationName,
+                lineName: item.lineName,
+                prefName: item.prefName,
+                alertTime: item.alertTime,
+                active: item.active
+            }));
+            setAlertItems(alerts);
         }catch(error){
             console.error(error);
         }
@@ -106,7 +116,7 @@ export default function StationList() {
             
     };
 
-    const onTimeChange = (event: Event, selectedDate: Date | undefined) => {
+    const onTimeChange = (event: DateTimePickerEvent, selectedDate: Date | undefined) => {
         const currentDate = selectedDate || selectedTime;
         if (currentDate instanceof Date) {            
             setSelectedTime(currentDate);            
@@ -123,10 +133,7 @@ export default function StationList() {
     // アラート登録
     const insertAlert = async () => {
         if (selectedStation) {
-            setAlertItems((prevItems) => [
-                ...prevItems,
-                { id: Math.random().toString(), name: `${selectedStation.stationName}` + `(${selectedStation.lineName})` + `(${selectedStation.prefName})`.trim(), isAlertEnabled: true},
-            ]);
+    
             setSearchKeyword('');
             setSearchResults([]);
             setSelectedStation(null);
@@ -138,13 +145,17 @@ export default function StationList() {
                     userId: 1,
                     stationId: selectedStation.stationId,
                     alertTime: alertTime,
-                    isActive: true
+                    active: true
                 },{
                     headers: {
                         "Content-Type": "application/json",
                         "Accept": "application/json"
                     }
                 });
+                setAlertItems((prevItems) => [
+                    ...prevItems,
+                    { alertId: response.data.alertId, stationName: selectedStation.stationName, lineName: selectedStation.lineName, prefName: selectedStation.prefName, alertTime: alertTime, active: true},
+                ]);
             }catch(error){
                 console.error("エラー" +  error);
             }
@@ -158,7 +169,14 @@ export default function StationList() {
 
     return (
         <View style={styles.container}>
-            <Button title="アラート登録" onPress={() => setIsPopupVisible(true)} />
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 10 }}>
+                <View style={{ flex: 1, marginRight: 5 }}>
+                    <Button title="アラート登録" onPress={() => setIsPopupVisible(true)} />
+                </View>
+                <View style={{ flex: 1, marginLeft: 5 }}>
+                    <LogoutComponent />
+                </View>
+            </View>
 
             {/* モーダル */}
             <Modal visible={isPopupVisible} animationType="fade" transparent={true}>
@@ -198,7 +216,7 @@ export default function StationList() {
                     </View>
                 </View>
             </Modal>
-            <AlertItemsComponent alertItems={alertItems}/>
+            <AlertItemsComponent alertItems = { alertItems } userId = { userId } />
         </View>
     );
 }
