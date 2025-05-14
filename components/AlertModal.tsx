@@ -12,7 +12,7 @@ type AlertModalProps = {
   isPopupVisible: boolean,
   setAlertItems: (alertItem: AlertItem[]) => void;
   buttonStatus: string;
-  selectedAlertId: number;
+  selectedAlert?: AlertItem;
 };
 
 // 駅データの型定義
@@ -29,7 +29,7 @@ const AlertModal = ({
   isPopupVisible,
   setAlertItems,
   buttonStatus,
-  selectedAlertId
+  selectedAlert
 }: AlertModalProps) => {
 
     const [selectedTime, setSelectedTime] = useState(new Date());
@@ -111,8 +111,23 @@ const AlertModal = ({
         }
     }
 
-    const modifyAlert = () => {
-
+    const modifyAlert = (alertId: number, stationId: string, alertTime: Date, active: boolean) => {
+        try{    
+            api.post("/modifyAlert", {
+                alertId,
+                stationId,
+                alertTime,
+                active
+            },
+            {
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
+                }    
+            });
+        }catch(error){
+            console.error(error);
+        }
     }
 
   return (
@@ -123,7 +138,7 @@ const AlertModal = ({
             {buttonStatus === '登録' ? 'アラート登録' : 'アラート変更'}
           </Text>
           {buttonStatus == '変更' && (
-            <DeleteButton alertId = { selectedAlertId } />
+            <DeleteButton alertId = { selectedAlert.alertId } setIsPopupVisible = {setIsPopupVisible}/>
           )}
           <Text>アラーム時間を設定</Text>
           <DateTimePicker value={selectedTime} mode="time" display="default" onChange={onTimeChange} />
@@ -137,21 +152,21 @@ const AlertModal = ({
           {searchResults.length > 0 && (
             <FlatList
               data={searchResults}
-              keyExtractor={(item) => item.stationId}
+              keyExtractor={(item: AlertItem) => item.alertId}
               style={styles.resultsList}
-              renderItem={({ item }) => (
+              renderItem={({ item }: { item: AlertItem }) => (
                 <TouchableOpacity onPress={() => setSelectedInfo(item)} style={styles.resultItem}>
-                  <Text>{item.stationName} ({item.lineName} {item.prefName})</Text>
-                </TouchableOpacity>
+                    <Text>{item.stationName} ({item.lineName} {item.prefName})</Text>
+                </TouchableOpacity>        
               )}
             />
-          )}          
-          <TouchableOpacity onPress = { buttonStatus === '登録' ? insertAlert : modifyAlert} style = { styles.modalButton }>
-            <Text style = { styles.buttonText }>
-                { buttonStatus === "登録" ? '登録する' : '変更する'}
-            </Text>
-          </TouchableOpacity>
-          <Button title="キャンセル" onPress={() => setIsPopupVisible(false)} />
+          )}  
+            <TouchableOpacity onPress = { buttonStatus === '登録' ? () => insertAlert() : () => modifyAlert(selectedAlert.alertId, selectedAlert.stationId, selectedTime, selectedAlert.active)} style = { styles.modalButton }>
+                <Text style = { styles.buttonText }>
+                    { buttonStatus === "登録" ? '登録する' : '変更する'}
+                </Text>
+            </TouchableOpacity>
+            <Button title="キャンセル" onPress={() => setIsPopupVisible(false)} />          
         </View>
       </View>
     </Modal>

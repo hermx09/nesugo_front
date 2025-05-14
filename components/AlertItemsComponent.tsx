@@ -10,7 +10,7 @@ type AlertProps = {
     alertItems: AlertItem[];
     setButtonStatus: (status: string) => void;
     setIsPopupVisible: (visible: boolean) => void;
-    modifyPopup: (alertId: number) => void;
+    modifyPopup: (alertId: string) => void;
 }
 
 export const AlertItemsComponent = ({userId, alertItems, setButtonStatus, setIsPopupVisible, modifyPopup}: AlertProps) => {
@@ -56,15 +56,15 @@ export const AlertItemsComponent = ({userId, alertItems, setButtonStatus, setIsP
             <FlatList
             data={localAlertItems}
             keyExtractor={(item: AlertItem) => item.alertId}
-            renderItem={({ item }) => (
-                <TouchableOpacity onPress = {() => modifyPopup(item.alertId)}>
+            renderItem={({ item }: {item: AlertItem}) => (
+                <TouchableOpacity onPress = {() => modifyPopup(item)}>
                     <View style = {styles.alertButton}>
                         <View style = {styles.stationContainer}>
                         <Text style = {styles.itemText} numberOfLines={1} ellipsizeMode="tail">({item.lineName})({item.prefName})</Text>
                         <Text style = {styles.itemText} numberOfLines={1} ellipsizeMode="tail">{item.stationName}</Text>
                     </View>
                     <Text style = {styles.timeText}>{ item.alertTime.slice(0, 5) }</Text>
-                    <Switch value = { item.active } onValueChange = {(value) => toggleAlert(item.alertId, value)} />
+                    <Switch value = { item.active } onValueChange = {(value: boolean) => toggleAlert(item.alertId, value)} />
                     </View>
                 </TouchableOpacity>
             )}

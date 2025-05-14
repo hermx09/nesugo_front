@@ -14,6 +14,7 @@ import AlertModal from '@/components/AlertModal';
 // アラートアイテムの型定義
 export type AlertItem = {
     alertId: string;
+    stationId: string;
     stationName: string;
     lineName: string;
     prefName: string;
@@ -35,6 +36,7 @@ export default function StationList() {
     const [userId, setUserId] = useState(0);
     const [buttonStatus, setButtonStatus] = useState('');
     const [selectedAlertId, setSelectedAlertId] = useState(0);
+    const [selectedAlert, setSelectedAlert] = useState<AlertItem>();
 
     useEffect(() => {
         getUserName();
@@ -52,8 +54,8 @@ export default function StationList() {
         setIsPopupVisible(true);
     }
 
-    const modifyPopup = (alertId: number) => {
-        setSelectedAlertId(alertId);
+    const modifyPopup = (alertItem: Alert) => {
+        setSelectedAlert(alertItem);
         setButtonStatus("変更");
         setIsPopupVisible(true);
     }
@@ -80,6 +82,7 @@ export default function StationList() {
             });
             const alerts: AlertItem[] = response.data.map((item: AlertItem) => ({
                 alertId: item.alertId,
+                stationId: item.stationId,
                 stationName: item.stationName,
                 lineName: item.lineName,
                 prefName: item.prefName,
@@ -102,7 +105,7 @@ export default function StationList() {
                     <LogoutComponent />
                 </View>
             </View>
-            <AlertModal setIsPopupVisible = { setIsPopupVisible } isPopupVisible = { isPopupVisible } setAlertItems = { setAlertItems } buttonStatus = { buttonStatus } selectedAlertId = {selectedAlertId} />
+            <AlertModal setIsPopupVisible = { setIsPopupVisible } isPopupVisible = { isPopupVisible } setAlertItems = { setAlertItems } buttonStatus = { buttonStatus } selectedAlert = {selectedAlert} />
             <AlertItemsComponent alertItems = { alertItems } userId = { userId } setButtonStatus = { setButtonStatus } setIsPopupVisible = { setIsPopupVisible } modifyPopup = {modifyPopup}/>
         </View>
     );
