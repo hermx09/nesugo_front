@@ -1,13 +1,17 @@
 import { View, Modal, Text, TouchableOpacity, Alert, StyleSheet} from 'react-native';
 import api from '@/services/axiosInstance';
+import { useRouter } from 'expo-router';
 
 type deleteProps = {
-    alertId: number
+    alertId: number;
+    setIsPopupVisible: (isPopupVisible: boolean) => void;
 }
 
-const DeleteButton = ({ alertId }: deleteProps) => {
+const DeleteButton = ({ alertId, setIsPopupVisible }: deleteProps) => {
 
+    const router = useRouter();
     const deleteAlert = async(alertId: number) => {
+        console.log(alertId);
         const response = await api.post("/deleteAlert", {
             alertId: alertId
         },
@@ -20,6 +24,8 @@ const DeleteButton = ({ alertId }: deleteProps) => {
 
         if(response.status == 200){
             Alert.alert("削除しました");
+            setIsPopupVisible(false);
+            router.push("/stationList");
         }else{
             Alert.alert("削除失敗");
         }
