@@ -105,7 +105,7 @@ export default function StationList() {
                     <LogoutComponent />
                 </View>
             </View>
-            <AlertModal setIsPopupVisible = { setIsPopupVisible } isPopupVisible = { isPopupVisible } setAlertItems = { setAlertItems } buttonStatus = { buttonStatus } selectedAlert = {selectedAlert} />
+            <AlertModal setIsPopupVisible = { setIsPopupVisible } isPopupVisible = { isPopupVisible } alertItem = { selectedAlert } setAlertItems = { setAlertItems } buttonStatus = { buttonStatus } selectedAlert = {selectedAlert} />
             <AlertItemsComponent alertItems = { alertItems } userId = { userId } setButtonStatus = { setButtonStatus } setIsPopupVisible = { setIsPopupVisible } modifyPopup = {modifyPopup}/>
         </View>
     );
