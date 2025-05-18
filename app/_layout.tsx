@@ -8,7 +8,7 @@ export default function Layout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaView style={{ flex: 1 }}>
         <HeaderComponent />
-        <Stack screenOptions = {{ headerShown: false }}/>
+        <Stack screenOptions = {{ headerShown: false , gestureEnabled: false}}/>
       </SafeAreaView>
     </GestureHandlerRootView>
   );

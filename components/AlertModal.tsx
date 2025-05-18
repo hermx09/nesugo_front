@@ -5,11 +5,14 @@ import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/dat
 import api from '@/services/axiosInstance';
 import type { AlertItem } from '@/app/stationList';
 import DeleteButton from './DeleteButton';
+import { useRouter } from 'expo-router';
+import { AlertItemsComponent } from './AlertItemsComponent';
 
 
 type AlertModalProps = {
   setIsPopupVisible: (isPopupVisible: boolean) => void;
-  isPopupVisible: boolean,
+  isPopupVisible: boolean;
+  alertItem?: AlertItem;
   setAlertItems: (alertItem: AlertItem[]) => void;
   buttonStatus: string;
   selectedAlert?: AlertItem;
@@ -27,6 +30,7 @@ interface Station {
 const AlertModal = ({
   setIsPopupVisible,
   isPopupVisible,
+  alertItem,
   setAlertItems,
   buttonStatus,
   selectedAlert
@@ -36,6 +40,7 @@ const AlertModal = ({
     const [searchKeyword, setSearchKeyword] = useState<string>('');
     const [searchResults, setSearchResults] = useState<Station[]>([]);
     const [selectedStation, setSelectedStation] = useState<Station | null>(null);
+    const router = useRouter();
 
     const onSearchInput = async (text: string) => {
         setSearchKeyword(text);
@@ -111,9 +116,25 @@ const AlertModal = ({
         }
     }
 
-    const modifyAlert = (alertId: number, stationId: string, alertTime: Date, active: boolean) => {
+    const modifyAlert = async () => {
+        
+        let stationId  = alertItem?.stationId;
+        if(selectedStation?.stationId){
+           stationId =  selectedStation.stationId;
+        }
+
+        let alertTime = formatDateToTimeString(convertTimeStringToDate(alertItem.alertTime));
+        if(selectedTime){
+            alertTime = formatDateToTimeString(selectedTime);
+        }
+
+        const alertId = alertItem?.alertId;
+        const active = alertItem?.active;
+
+
+        console.log(alertId, stationId, alertTime, active);
         try{    
-            api.post("/modifyAlert", {
+            const response = await api.post("/modifyAlert", {
                 alertId,
                 stationId,
                 alertTime,
@@ -125,10 +146,34 @@ const AlertModal = ({
                     "Accept": "application/json"
                 }    
             });
+            if(response.status == 200){
+                Alert.alert("変更しました");
+                setIsPopupVisible(false);
+                router.push("/stationList");
+            }else{
+                Alert.alert("変更失敗");
+            }
         }catch(error){
             console.error(error);
         }
     }
+
+    const convertTimeStringToDate = (timeString: string): Date => {
+        const [hours, minutes, seconds] = timeString.split(":").map(Number);
+        const now = new Date();
+        now.setHours(hours);
+        now.setMinutes(minutes);
+        now.setSeconds(seconds || 0); // 秒がない場合は 0
+        now.setMilliseconds(0); // ミリ秒もリセット
+        return now;
+      };
+
+    const formatDateToTimeString = (date: Date): string => {
+        const hours = String(date.getHours()).padStart(2, "0");
+        const minutes = String(date.getMinutes()).padStart(2, "0");
+        const seconds = String(date.getSeconds()).padStart(2, "0");
+        return `${hours}:${minutes}:${seconds}`;
+      };
 
   return (
     <Modal visible={isPopupVisible} animationType="fade" transparent={true}>
@@ -161,7 +206,7 @@ const AlertModal = ({
               )}
             />
           )}  
-            <TouchableOpacity onPress = { buttonStatus === '登録' ? () => insertAlert() : () => modifyAlert(selectedAlert.alertId, selectedAlert.stationId, selectedTime, selectedAlert.active)} style = { styles.modalButton }>
+            <TouchableOpacity onPress = { () => { buttonStatus === '登録' ? insertAlert() : modifyAlert() } } style = { styles.modalButton } >
                 <Text style = { styles.buttonText }>
                     { buttonStatus === "登録" ? '登録する' : '変更する'}
                 </Text>

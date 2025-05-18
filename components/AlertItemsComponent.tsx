@@ -44,11 +44,6 @@ export const AlertItemsComponent = ({userId, alertItems, setButtonStatus, setIsP
             console.error("error" + error);
         }
     }
-    const currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-    const editAlert = (item: AlertItem) => {
-        console.log(item);
-    }
 
     return (
         <View>
