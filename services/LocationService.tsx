@@ -1,35 +1,38 @@
 import * as TaskManager from 'expo-task-manager';
 import * as Location from 'expo-location';
 import * as Sound from './SoundService';
+import { log } from './LogService';
 
 // タスク名を決める
 const LOCATION_TASK_NAME = 'background-location-task';
 
 // タスクを定義
 TaskManager.defineTask(LOCATION_TASK_NAME, async ({ data, error }) => {
-  if (error) {
-    console.error(error);
-    return;
-  }
-  if (data) {
-    const { locations } = data as { locations: Location.LocationObject[] };
-    const location = locations[0];
-
-    if (location) {
-      const { latitude, longitude } = location.coords;
-      console.log('現在地:', latitude, longitude);
-    
-    // 距離を計算してアラームを鳴らす
-        const distance = calculateDistance(latitude, longitude, 35.744, 139.640);
-        if (distance < 0.5) {  // 例えば0.5km以内
-            Sound.playSound();
-            console.log("yo");
-        }else{
-          console.log("no");
-        }
-    }
-  }
-});
+	if (error) {
+	  log("エラー発生: " + error.message);
+	  return;
+	}
+	log("バックグラウンドタスク実行");
+  
+	if (data) {
+	  const { locations } = data as { locations: Location.LocationObject[] };
+	  const location = locations[0];
+  
+	  if (location) {
+		const { latitude, longitude } = location.coords;
+		log(`現在地: ${latitude}, ${longitude}`);
+  
+		const distance = calculateDistance(latitude, longitude, 35.744, 139.640);
+		if (distance < 0.5) {
+		  Sound.playSound();
+		  log("アラーム鳴動！");
+		} else {
+		  log("距離遠い");
+		}
+	  }
+	}
+  });
+  
 
 const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
     const toRad = (value: number) => (value * Math.PI) / 180;
@@ -48,46 +51,56 @@ const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: numbe
 };
 
 // アプリ起動時に位置情報の追跡を開始する関数
-export const startLocationTracking = async () => {
-  const { status: alwaysStatus } = await Location.requestAlwaysPermissionAsync(); // 常に位置情報を許可
-  if (alwaysStatus !== 'granted') {
-    console.error('常に位置情報の許可が必要です');
-    alert("常に位置情報の許可が必要です。設定から許可してください。");
-    return;
-  }
-
-  const { status } = await Location.requestForegroundPermissionsAsync();
-  if (status !== 'granted') {
-    console.error('フォアグラウンド位置情報の許可が必要です');
-    alert("フォアグラウンド位置情報の許可が必要です。設定から許可してください。");
-    return;
-  }
+export const startLocationTracking = async (onLog: (msg: string) => void) => {
+	onLog("開始");
+	// try {
+	//   const { status: alwaysStatus } = await Location.requestAlwaysPermissionAsync();
+	//   onLog("常に位置情報許可チェック完了");
+	//   if (alwaysStatus !== 'granted') {
+	// 	onLog("常に位置情報の許可が必要です");
+	// 	alert("常に位置情報の許可が必要です。設定から許可してください。");
+	// 	return;
+	//   }
+	// } catch (error) {
+	//   onLog(`エラー: ${error}`);
+	//   return;
+	// }
   
-  const { status: bgStatus } = await Location.requestBackgroundPermissionsAsync();
-  if (bgStatus !== 'granted') {
-    console.error('バックグラウンド位置情報の許可が必要です');
-    alert("バックグラウンド位置情報の許可が必要です。設定から許可してください。");
-    return;
-  }
-
-  const isTaskDefined = await TaskManager.isTaskDefined(LOCATION_TASK_NAME);
-  if (!isTaskDefined) {
-    console.error('タスクが未定義です');
-    return;
-  }
-
-  const hasStarted = await Location.hasStartedLocationUpdatesAsync(LOCATION_TASK_NAME);
-  if (!hasStarted) {
-    await Location.startLocationUpdatesAsync(LOCATION_TASK_NAME, {
-      accuracy: Location.Accuracy.High,
-      timeInterval: 10000, // 10秒ごとに更新
-      distanceInterval: 10, // 10メートル移動ごとに更新
-      showsBackgroundLocationIndicator: true, // iOSだけ
-      foregroundService: {
-        notificationTitle: '位置情報追跡中',
-        notificationBody: '降車駅を監視しています。',
-        notificationColor: '#FF0000',
-      },
-    });
-  }
-};
+	const { status } = await Location.requestForegroundPermissionsAsync();
+	if (status !== 'granted') {
+	  onLog("フォアグラウンド位置情報の許可が必要です");
+	  alert("フォアグラウンド位置情報の許可が必要です。設定から許可してください。");
+	  return;
+	}
+  
+	const { status: bgStatus } = await Location.requestBackgroundPermissionsAsync();
+	if (bgStatus !== 'granted') {
+	  onLog("バックグラウンド位置情報の許可が必要です");
+	  alert("バックグラウンド位置情報の許可が必要です。設定から許可してください。");
+	  return;
+	}
+  
+	const isTaskDefined = await TaskManager.isTaskDefined(LOCATION_TASK_NAME);
+	if (!isTaskDefined) {
+	  onLog("タスクが未定義です");
+	  return;
+	}
+  
+	const hasStarted = await Location.hasStartedLocationUpdatesAsync(LOCATION_TASK_NAME);
+	onLog("更新開始");
+	if (!hasStarted) {
+	  onLog("位置情報更新を開始します");
+	  await Location.startLocationUpdatesAsync(LOCATION_TASK_NAME, {
+		accuracy: Location.Accuracy.High,
+		timeInterval: 10000,
+		distanceInterval: 10,
+		showsBackgroundLocationIndicator: true,
+		foregroundService: {
+		  notificationTitle: '位置情報追跡中',
+		  notificationBody: '降車駅を監視しています。',
+		  notificationColor: '#FF0000',
+		},
+	  });
+	}
+  };
+  

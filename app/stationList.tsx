@@ -40,7 +40,6 @@ export default function StationList() {
 
     useEffect(() => {
         getUserName();
-        startLocationTracking();
     }, []);
 
     useEffect(() => {
