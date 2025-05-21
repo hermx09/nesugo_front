@@ -7,12 +7,18 @@ import { Alert } from 'react-native';
 import styles from '@/components/Styles';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export default function LoginView() {
+type returnProps = {
+    returnText: string[]
+  };
+
+export default function LoginView({ returnText }: returnProps) {
     const [userName, setUserName] = useState<string>('');
     const [isRegistUser, setIsRegistUser] = useState<boolean>(false);
     const router = useRouter();
+    const [logText, setLogText] = useState(); 
 
     useEffect(() => {
+        console.log(returnText);
         const checkToken = async () => {
             const token = await AsyncStorage.getItem("authToken");
             if (token) {
@@ -89,6 +95,9 @@ export default function LoginView() {
     <View style = {styles.container}>
       <Text>ログイン</Text>
       <TextInput style = {styles.input}  value = { userName } onChangeText = { setUserName } placeholder='ユーザーネームを入力' />
+      {returnText.map((msg, i) => (
+                    <Text key={i}>{msg}</Text>
+                ))}
       <Button title = "ログイン" onPress = {loginByUserName} />
       <Button title = "ユーザー登録はこちら" onPress = {() => setIsRegistUser(true)} />
       <Modal visible = {isRegistUser} animationType = "fade" transparent={true}>

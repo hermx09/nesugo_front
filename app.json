@@ -15,6 +15,7 @@
         "ITSAppUsesNonExemptEncryption": false,
         "NSLocationWhenInUseUsageDescription": "このアプリは位置情報を利用します。",
         "NSLocationAlwaysUsageDescription": "このアプリはバックグラウンドでも位置情報を取得します。",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "このアプリはバックグラウンドでも位置情報を取得します。",
         "UIBackgroundModes": ["location", "audio"]
       }
     },
