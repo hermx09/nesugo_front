@@ -3,6 +3,7 @@ import {FlatList, TouchableOpacity, View, Text, StyleSheet, Switch, Alert } from
 import type { AlertItem } from '@/app/stationList';
 import api from '@/services/axiosInstance';
 import { getUserAlerts } from '@/services/AlertService';
+import { getTargetLocations, removeTargetLocation } from '@/services/addTargetLocation';
 
 
 type AlertProps = {
@@ -39,6 +40,10 @@ export const AlertItemsComponent = ({userId, alertItems, setButtonStatus, setIsP
                 }
             });
             const alerts = await getUserAlerts(userId);
+            if(!alertValue){
+                removeTargetLocation(Number(alertId));
+                console.log(getTargetLocations);
+            }
             setLocalAlertItems(alerts);
         }catch(error){
             console.error("error" + error);
@@ -52,7 +57,7 @@ export const AlertItemsComponent = ({userId, alertItems, setButtonStatus, setIsP
             data={localAlertItems}
             keyExtractor={(item: AlertItem) => item.alertId}
             renderItem={({ item }: {item: AlertItem}) => (
-                <TouchableOpacity onPress = {() => modifyPopup(item)}>
+                <TouchableOpacity onPress = {() => modifyPopup(item.alertId)}>
                     <View style = {styles.alertButton}>
                         <View style = {styles.stationContainer}>
                         <Text style = {styles.itemText} numberOfLines={1} ellipsizeMode="tail">({item.lineName})({item.prefName})</Text>

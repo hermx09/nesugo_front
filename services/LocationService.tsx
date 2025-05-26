@@ -2,6 +2,9 @@ import * as TaskManager from 'expo-task-manager';
 import * as Location from 'expo-location';
 import * as Sound from './SoundService';
 import { log } from './LogService';
+import { getTargetLocations } from './addTargetLocation';
+import { requestNotificationPermission } from '@/lib/notifications';
+import { sendAlarmNotification } from '@/lib/notifications';
 
 // タスク名を決める
 const LOCATION_TASK_NAME = 'background-location-task';
@@ -21,19 +24,23 @@ TaskManager.defineTask(LOCATION_TASK_NAME, async ({ data, error }) => {
 	  if (location) {
 		const { latitude, longitude } = location.coords;
 		log(`現在地: ${latitude}, ${longitude}`);
-  
-		const distance = calculateDistance(latitude, longitude, 35.744, 139.640);
-		if (distance < 0.5) {
-		  Sound.playSound();
-		  log("アラーム鳴動！");
-		} else {
-		  log("距離遠い");
+		
+		const targets = await getTargetLocations();
+		log(`📍 監視対象数: ${targets.length}`);
+		for(const target of targets){
+			const distance = calculateDistance(latitude, longitude, target.lat, target.lon);
+			if (distance < 0.5) {
+			Sound.playSound();
+			await sendAlarmNotification();
+			log("アラーム鳴動！");
+			} else {
+			log("距離遠い");
+			}
 		}
 	  }
 	}
   });
   
-
 const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
     const toRad = (value: number) => (value * Math.PI) / 180;
     const R = 6371; // 地球の半径 (km)
@@ -65,6 +72,7 @@ export const startLocationTracking = async (onLog: (msg: string) => void) => {
 	//   onLog(`エラー: ${error}`);
 	//   return;
 	// }
+	requestNotificationPermission();
   
 	const { status } = await Location.requestForegroundPermissionsAsync();
 	if (status !== 'granted') {
@@ -87,7 +95,7 @@ export const startLocationTracking = async (onLog: (msg: string) => void) => {
 	}
   
 	const hasStarted = await Location.hasStartedLocationUpdatesAsync(LOCATION_TASK_NAME);
-	onLog("更新開始");
+	onLog(`✅ hasStarted: ${hasStarted}`);
 	if (!hasStarted) {
 	  onLog("位置情報更新を開始します");
 	  await Location.startLocationUpdatesAsync(LOCATION_TASK_NAME, {

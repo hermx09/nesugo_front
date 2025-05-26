@@ -16,7 +16,8 @@
         "NSLocationWhenInUseUsageDescription": "このアプリは位置情報を利用します。",
         "NSLocationAlwaysUsageDescription": "このアプリはバックグラウンドでも位置情報を取得します。",
         "NSLocationAlwaysAndWhenInUseUsageDescription": "このアプリはバックグラウンドでも位置情報を取得します。",
-        "UIBackgroundModes": ["location", "audio"]
+        "UIBackgroundModes": ["location", "audio", "fetch"],
+        "NSUserTrackingUsageDescription": "このアプリでは通知を使用します"
       }
     },
     "android": {
@@ -40,7 +41,8 @@
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
-      ]
+      ],
+      "expo-notifications"
     ],
     "experiments": {
       "typedRoutes": true
