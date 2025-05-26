@@ -1,6 +1,7 @@
 import { View, Modal, Text, TouchableOpacity, Alert, StyleSheet} from 'react-native';
 import api from '@/services/axiosInstance';
 import { useRouter } from 'expo-router';
+import { removeTargetLocation } from '@/services/addTargetLocation';
 
 type deleteProps = {
     alertId: number;
@@ -24,6 +25,7 @@ const DeleteButton = ({ alertId, setIsPopupVisible }: deleteProps) => {
 
         if(response.status == 200){
             Alert.alert("削除しました");
+            removeTargetLocation(Number(alertId));
             setIsPopupVisible(false);
             router.push("/stationList");
         }else{

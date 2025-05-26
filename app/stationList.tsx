@@ -10,6 +10,7 @@ import * as Sound from '../services/SoundService';
 import LogoutComponent from '@/components/LogoutComponent';
 import DeleteButton from '@/components/DeleteButton';
 import AlertModal from '@/components/AlertModal';
+import { addTargetLocation, getTargetLocations } from '@/services/addTargetLocation';
 
 // アラートアイテムの型定義
 export type AlertItem = {
@@ -20,6 +21,8 @@ export type AlertItem = {
     prefName: string;
     alertTime: string;
     active: boolean;
+    lat: number;
+    lon: number;
 }
 
 interface UserToken {
@@ -86,8 +89,19 @@ export default function StationList() {
                 lineName: item.lineName,
                 prefName: item.prefName,
                 alertTime: item.alertTime,
-                active: item.active
+                active: item.active,
+                lat: item.lat,
+                lon: item.lon
             }));
+            for(const alert of alerts){
+                if(!alert.active){
+                    continue;
+                }
+                await addTargetLocation(Number(alert.alertId), alert.lat, alert.lon);
+            }
+            console.log(alerts);
+            const targets = await getTargetLocations();
+            console.log(targets);
             setAlertItems(alerts);
         }catch(error){
             console.error(error);
