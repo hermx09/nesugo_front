@@ -6,20 +6,19 @@ import { AlertItemsComponent } from '@/components/AlertItemsComponent';
 import DateTimePicker, { DateTimePickerEvent} from '@react-native-community/datetimepicker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { jwtDecode } from 'jwt-decode';
-import * as Sound from '../services/SoundService';
 import LogoutComponent from '@/components/LogoutComponent';
-import DeleteButton from '@/components/DeleteButton';
 import AlertModal from '@/components/AlertModal';
 import { addTargetLocation, getTargetLocations } from '@/services/addTargetLocation';
 
+
 // アラートアイテムの型定義
 export type AlertItem = {
-    alertId: string;
-    stationId: string;
+    alertId: number;
+    stationId: number;
     stationName: string;
     lineName: string;
     prefName: string;
-    alertTime: string;
+    // alertTime: string;
     active: boolean;
     lat: number;
     lon: number;
@@ -42,6 +41,8 @@ export default function StationList() {
     const [selectedAlert, setSelectedAlert] = useState<AlertItem>();
 
     useEffect(() => {
+        startLocationTracking((msg) => {
+        });
         getUserName();
     }, []);
 
@@ -56,7 +57,8 @@ export default function StationList() {
         setIsPopupVisible(true);
     }
 
-    const modifyPopup = (alertItem: Alert) => {
+    const modifyPopup = (alertItem: AlertItem) => {
+        console.log("変更" + selectedAlert);
         setSelectedAlert(alertItem);
         setButtonStatus("変更");
         setIsPopupVisible(true);
@@ -88,7 +90,7 @@ export default function StationList() {
                 stationName: item.stationName,
                 lineName: item.lineName,
                 prefName: item.prefName,
-                alertTime: item.alertTime,
+                // alertTime: item.alertTime,
                 active: item.active,
                 lat: item.lat,
                 lon: item.lon
@@ -110,18 +112,33 @@ export default function StationList() {
 
     return (
         <View style={styles.container}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 10 }}>
-                <View style={{ flex: 1, marginRight: 5 }}>
-                    <Button title="アラート登録" onPress={insertPopup} />
-                </View>
-                <View style={{ flex: 1, marginLeft: 5 }}>
-                    <LogoutComponent />
-                </View>
+          <View style={styles.header}>
+            <View style={styles.buttonWrapper}>
+              <LogoutComponent />
             </View>
-            <AlertModal setIsPopupVisible = { setIsPopupVisible } isPopupVisible = { isPopupVisible } alertItem = { selectedAlert } setAlertItems = { setAlertItems } buttonStatus = { buttonStatus } selectedAlert = {selectedAlert} />
-            <AlertItemsComponent alertItems = { alertItems } userId = { userId } setButtonStatus = { setButtonStatus } setIsPopupVisible = { setIsPopupVisible } modifyPopup = {modifyPopup}/>
+            <TouchableOpacity style={styles.alertButton} onPress={insertPopup} activeOpacity={0.7}>
+              <Text style={styles.alertButtonText}>アラート登録</Text>
+            </TouchableOpacity>
+          </View>
+      
+          <AlertModal
+            setIsPopupVisible={setIsPopupVisible}
+            isPopupVisible={isPopupVisible}
+            alertItem={selectedAlert}
+            setAlertItems={setAlertItems}
+            buttonStatus={buttonStatus}
+            userId = {userId}
+          />
+      
+          <AlertItemsComponent
+            alertItems={alertItems}
+            userId={userId}
+            setButtonStatus={setButtonStatus}
+            setIsPopupVisible={setIsPopupVisible}
+            modifyPopup={modifyPopup}
+          />
         </View>
-    );
+      );
 }
 
 const styles = StyleSheet.create({
@@ -130,5 +147,32 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         padding: 20,
-    }
+      },
+      header: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        paddingHorizontal: 10,
+        padding: 12,
+        marginTop: 20,
+        alignItems: 'center',
+      },
+      buttonWrapper: {
+        flex: 1,
+        marginRight: 5,
+      },
+      alertButton: {
+        flex: 1,
+        backgroundColor: '#007AFF',
+        borderRadius: 8,
+        paddingVertical: 12,
+        paddingHorizontal: 10,
+        marginLeft: 5,
+        alignItems: 'center',
+        justifyContent: 'center',
+      },
+      alertButtonText: {
+        color: '#fff',
+        fontWeight: '600',
+        fontSize: 16,
+      },
 });

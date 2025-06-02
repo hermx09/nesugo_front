@@ -12,6 +12,7 @@
 		4159E44229B9C46307E06380 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = FEC44C0E5FE6614F43118255 /* PrivacyInfo.xcprivacy */; };
 		6861E7854DDB85677943BF19 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CB8DD2EC3D28F2E23C7E322 /* ExpoModulesProvider.swift */; };
 		AF53931BEC804280D9D865D7 /* libPods-nesugofront.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 030DC1465D23CF4DF4DB86A5 /* libPods-nesugofront.a */; };
+		B069870E2DE8916F008BE654 /* startsound.caf in Resources */ = {isa = PBXBuildFile; fileRef = B069870D2DE8916F008BE654 /* startsound.caf */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
 		F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11748412D0307B40044C1D9 /* AppDelegate.swift */; };
 /* End PBXBuildFile section */
@@ -24,12 +25,13 @@
 		8CB8DD2EC3D28F2E23C7E322 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-nesugofront/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 		A604D401826D047D0B2512F7 /* Pods-nesugofront.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-nesugofront.release.xcconfig"; path = "Target Support Files/Pods-nesugofront/Pods-nesugofront.release.xcconfig"; sourceTree = "<group>"; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = nesugofront/SplashScreen.storyboard; sourceTree = "<group>"; };
+		B069870D2DE8916F008BE654 /* startsound.caf */ = {isa = PBXFileReference; lastKnownFileType = file; name = startsound.caf; path = nesugofront/Resources/startsound.caf; sourceTree = "<group>"; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
 		DA64F5CA3AB837205034DABF /* Pods-nesugofront.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-nesugofront.debug.xcconfig"; path = "Target Support Files/Pods-nesugofront/Pods-nesugofront.debug.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		F11748412D0307B40044C1D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = nesugofront/AppDelegate.swift; sourceTree = "<group>"; };
 		F11748442D0722820044C1D9 /* nesugofront-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "nesugofront-Bridging-Header.h"; path = "nesugofront/nesugofront-Bridging-Header.h"; sourceTree = "<group>"; };
-		FEC44C0E5FE6614F43118255 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = nesugofront/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		FEC44C0E5FE6614F43118255 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = nesugofront/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -64,7 +66,6 @@
 				DA64F5CA3AB837205034DABF /* Pods-nesugofront.debug.xcconfig */,
 				A604D401826D047D0B2512F7 /* Pods-nesugofront.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -95,6 +96,7 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
+				B069870D2DE8916F008BE654 /* startsound.caf */,
 				13B07FAE1A68108700A75B9A /* nesugofront */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				83CBBA001A601CBA00E9B192 /* Products */,
@@ -193,6 +195,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B069870E2DE8916F008BE654 /* startsound.caf in Resources */,
 				BB2F792D24A3F905000567C9 /* Expo.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
@@ -346,6 +349,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = nesugofront/nesugofront.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 3ZQZ5U4HH3;
 				ENABLE_BITCODE = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
@@ -382,6 +386,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = nesugofront/nesugofront.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 3ZQZ5U4HH3;
 				INFOPLIST_FILE = nesugofront/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -459,10 +464,7 @@
 				LIBRARY_SEARCH_PATHS = "$(SDKROOT)/usr/lib/swift\"$(inherited)\"";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) DEBUG";
@@ -517,10 +519,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = "$(SDKROOT)/usr/lib/swift\"$(inherited)\"";
 				MTL_ENABLE_DEBUG_INFO = NO;
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				USE_HERMES = true;

@@ -6,21 +6,20 @@ import api from '@/services/axiosInstance';
 import type { AlertItem } from '@/app/stationList';
 import DeleteButton from './DeleteButton';
 import { useRouter } from 'expo-router';
-import { AlertItemsComponent } from './AlertItemsComponent';
 
 
 type AlertModalProps = {
   setIsPopupVisible: (isPopupVisible: boolean) => void;
   isPopupVisible: boolean;
   alertItem?: AlertItem;
-  setAlertItems: (alertItem: AlertItem[]) => void;
+  setAlertItems: React.Dispatch<React.SetStateAction<AlertItem[]>>;
   buttonStatus: string;
-  selectedAlert?: AlertItem;
+  userId: number;
 };
 
 // 駅データの型定義
 interface Station {
-    stationId: string;
+    stationId: number;
     stationName: string;
     lineName: string;
     prefName: string;
@@ -33,7 +32,7 @@ const AlertModal = ({
   alertItem,
   setAlertItems,
   buttonStatus,
-  selectedAlert
+  userId
 }: AlertModalProps) => {
 
     const [selectedTime, setSelectedTime] = useState(new Date());
@@ -90,12 +89,12 @@ const AlertModal = ({
             setSelectedStation(null);
             setIsPopupVisible(false);
             
-            const alertTime = selectedTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            // const alertTime = selectedTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             try{
                 const response = await api.post('/insertAlert', {
-                    userId: 1,
+                    userId: userId,
                     stationId: selectedStation.stationId,
-                    alertTime: alertTime,
+                    // alertTime: alertTime,
                     active: true
                 },{
                     headers: {
@@ -105,7 +104,9 @@ const AlertModal = ({
                 });
                 setAlertItems((prevItems: AlertItem[]) => [
                     ...prevItems,
-                    { alertId: response.data.alertId, stationName: selectedStation.stationName, lineName: selectedStation.lineName, prefName: selectedStation.prefName, alertTime: alertTime, active: true},
+                    { alertId: response.data.alertId, stationId: response.data.stationId, stationName: response.data.stationName, lineName: response.data.lineName, prefName: response.data.prefName
+                        // , alertTime: alertTime
+                        , active: true, lat: response.data.lat, lon: response.data.lon},
                 ]);
             }catch(error){
                 console.error("エラー" +  error);
@@ -123,21 +124,20 @@ const AlertModal = ({
            stationId =  selectedStation.stationId;
         }
 
-        let alertTime = formatDateToTimeString(convertTimeStringToDate(alertItem.alertTime));
-        if(selectedTime){
-            alertTime = formatDateToTimeString(selectedTime);
-        }
+        // let alertTime = formatDateToTimeString(convertTimeStringToDate(alertItem.alertTime));
+        // if(selectedTime){
+        //     alertTime = formatDateToTimeString(selectedTime);
+        // }
 
         const alertId = alertItem?.alertId;
         const active = alertItem?.active;
 
 
-        console.log(alertId, stationId, alertTime, active);
+        console.log(alertId, stationId, active);
         try{    
             const response = await api.post("/modifyAlert", {
                 alertId,
                 stationId,
-                alertTime,
                 active
             },
             {
@@ -182,12 +182,20 @@ const AlertModal = ({
           <Text style={styles.alertText}>
             {buttonStatus === '登録' ? 'アラート登録' : 'アラート変更'}
           </Text>
-          {buttonStatus == '変更' && (
-            <DeleteButton alertId = { selectedAlert.alertId } setIsPopupVisible = {setIsPopupVisible}/>
-          )}
-          <Text>アラーム時間を設定</Text>
-          <DateTimePicker value={selectedTime} mode="time" display="default" onChange={onTimeChange} />
-          <Text>降車駅</Text>
+          <View style={styles.sectionWrapper}>
+            {/* <Text style={styles.sectionLabel}>アラーム時間を設定</Text>
+            <View style={styles.pickerContainer}>
+                <DateTimePicker
+                value={selectedTime}
+                mode="time"
+                display="default"
+                onChange={onTimeChange}
+                style={{ width: 200 }} // DateTimePickerに直接幅を指定
+                />
+            </View> */}
+
+            <Text style={styles.sectionLabel}>降車駅</Text>
+            </View>
           <TextInput
             style={styles.input}
             value={searchKeyword}
@@ -197,7 +205,7 @@ const AlertModal = ({
           {searchResults.length > 0 && (
             <FlatList
               data={searchResults}
-              keyExtractor={(item: AlertItem) => item.alertId}
+              keyExtractor={(item: AlertItem) => item.alertId?.toString()}
               style={styles.resultsList}
               renderItem={({ item }: { item: AlertItem }) => (
                 <TouchableOpacity onPress={() => setSelectedInfo(item)} style={styles.resultItem}>
@@ -211,7 +219,15 @@ const AlertModal = ({
                     { buttonStatus === "登録" ? '登録する' : '変更する'}
                 </Text>
             </TouchableOpacity>
-            <Button title="キャンセル" onPress={() => setIsPopupVisible(false)} />          
+            {buttonStatus == '変更' && (
+            <DeleteButton alertId = { alertItem?.alertId } setIsPopupVisible = {setIsPopupVisible}/>
+            )}
+            <TouchableOpacity
+                onPress={() => setIsPopupVisible(false)}
+                style={styles.cancelButton}
+                >
+                <Text style={styles.cancelButtonText}>キャンセル</Text>
+            </TouchableOpacity>
         </View>
       </View>
     </Modal>
@@ -219,62 +235,116 @@ const AlertModal = ({
 };
 
 const styles = StyleSheet.create({
-  popupOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  popup: {
-    backgroundColor: 'white',
-    padding: 20,
-    borderRadius: 10,
-    width: 300,
-    alignItems: 'center',
-  },
-  alertText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  input: {
-    width: '100%',
-    padding: 10,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 5,
-    marginBottom: 10,
-  },
-  resultsList: {
-    maxHeight: 120, // リストの最大高さを制限
-    width: '80%',
-    backgroundColor: 'white',
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 5,
-    marginBottom: 10,
-    paddingVertical: 5,
-  },
-  resultItem: {
-    padding: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
-  },
-  modalButton: {
-    backgroundColor: '#2196F3',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 6,
-    marginHorizontal: 5,
-  },
-  buttonText: {
-    color: 'white',
-    fontWeight: 'bold',
-  },
+    popupOverlay: {
+      flex: 1,
+      backgroundColor: 'rgba(0, 0, 0, 0.6)', // 少し濃い目のオーバーレイでフォーカスアップ
+      justifyContent: 'center',
+      alignItems: 'center',
+      paddingHorizontal: 20,
+    },
+    popup: {
+      backgroundColor: '#fff',
+      borderRadius: 16,
+      width: '100%',
+      maxWidth: 360,
+      paddingVertical: 24,
+      paddingHorizontal: 28,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 0.12,
+      shadowRadius: 16,
+      elevation: 8,
+      alignItems: 'stretch',
+    },
+    alertText: {
+      fontSize: 22,
+      fontWeight: '700',
+      color: '#212121',
+      marginBottom: 20,
+      textAlign: 'center',
+    },
+    input: {
+      width: '100%',
+      paddingVertical: 14,
+      paddingHorizontal: 16,
+      borderWidth: 1,
+      borderColor: '#bbb',
+      borderRadius: 10,
+      marginBottom: 30,
+      fontSize: 16,
+      color: '#212121',
+      backgroundColor: '#fefefe',
+    },
+    resultsList: {
+      maxHeight: 140,
+      marginBottom: 16,
+      borderRadius: 10,
+      borderWidth: 1,
+      borderColor: '#ddd',
+      backgroundColor: '#fafafa',
+    },
+    resultItem: {
+      paddingVertical: 12,
+      paddingHorizontal: 16,
+      borderBottomWidth: 1,
+      borderBottomColor: '#e0e0e0',
+    },
+    modalButton: {
+      backgroundColor: '#2962ff',
+      paddingVertical: 14,
+      borderRadius: 14,
+      marginBottom: 7,
+      alignItems: 'center',
+      shadowColor: '#2962ff',
+      shadowOffset: { width: 0, height: 6 },
+      shadowOpacity: 0.4,
+      shadowRadius: 12,
+      elevation: 6,
+    },
+    buttonText: {
+      color: 'white',
+      fontWeight: '700',
+      fontSize: 18,
+    },
+    cancelButton: {
+      alignItems: 'center',
+      paddingVertical: 12,
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: '#aaa',
+      backgroundColor: '#fff',
+    },
+    cancelButtonText: {
+      fontSize: 16,
+      color: '#555',
+    },
+    sectionWrapper: {
+        alignItems: 'center', // 子要素（テキストやピッカー）を中央寄せ
+        marginVertical: 12,
+    },
+    sectionLabel: {
+        fontSize: 18,
+        fontWeight: '700',
+        color: '#212121',
+        marginBottom: 8,
+        marginTop: 16,
+        textAlign: 'center',
+    },
+    pickerContainer: {
+        backgroundColor: '#fefefe',
+        borderRadius: 12,
+        padding: 12,
+        borderColor: '#ccc',
+        borderWidth: 1,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.08,
+        shadowRadius: 8,
+        elevation: 4,
+        marginBottom: 20,
+        alignItems: 'center', 
+    },
 });
+  
 
 export default AlertModal;

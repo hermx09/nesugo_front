@@ -5,6 +5,7 @@ import { log } from './LogService';
 import { getTargetLocations } from './addTargetLocation';
 import { requestNotificationPermission } from '@/lib/notifications';
 import { sendAlarmNotification } from '@/lib/notifications';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // タスク名を決める
 const LOCATION_TASK_NAME = 'background-location-task';
@@ -30,7 +31,6 @@ TaskManager.defineTask(LOCATION_TASK_NAME, async ({ data, error }) => {
 		for(const target of targets){
 			const distance = calculateDistance(latitude, longitude, target.lat, target.lon);
 			if (distance < 0.5) {
-			Sound.playSound();
 			await sendAlarmNotification();
 			log("アラーム鳴動！");
 			} else {
@@ -60,6 +60,12 @@ const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: numbe
 // アプリ起動時に位置情報の追跡を開始する関数
 export const startLocationTracking = async (onLog: (msg: string) => void) => {
 	onLog("開始");
+	const token = await AsyncStorage.getItem('authToken');
+    if (!token) {
+      log('トークン未取得のため、追跡開始スキップ');
+      return;
+    }
+	Sound.loadSound();
 	// try {
 	//   const { status: alwaysStatus } = await Location.requestAlwaysPermissionAsync();
 	//   onLog("常に位置情報許可チェック完了");
@@ -100,7 +106,6 @@ export const startLocationTracking = async (onLog: (msg: string) => void) => {
 	  onLog("位置情報更新を開始します");
 	  await Location.startLocationUpdatesAsync(LOCATION_TASK_NAME, {
 		accuracy: Location.Accuracy.High,
-		timeInterval: 10000,
 		distanceInterval: 10,
 		showsBackgroundLocationIndicator: true,
 		foregroundService: {

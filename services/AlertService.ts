@@ -18,7 +18,6 @@ export const getUserAlerts = async (userId: number): Promise<AlertItem[]> => {
       stationName: item.stationName,
       lineName: item.lineName,
       prefName: item.prefName,
-      alertTime: item.alertTime,
       active: item.active
     }));
   } catch (error) {
