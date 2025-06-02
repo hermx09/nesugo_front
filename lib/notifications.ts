@@ -26,7 +26,7 @@ export const sendAlarmNotification = async () => {
       content: {
         title: '降車アラーム',
         body: '目的地に近づいています！',
-        sound: 'default',
+        sound: 'startsound.caf',
         priority: Notifications.AndroidNotificationPriority.HIGH,
       },
       trigger: null,

@@ -4,15 +4,18 @@ import { useRouter } from 'expo-router';
 import { removeTargetLocation } from '@/services/addTargetLocation';
 
 type deleteProps = {
-    alertId: number;
+    alertId?: number;
     setIsPopupVisible: (isPopupVisible: boolean) => void;
 }
 
 const DeleteButton = ({ alertId, setIsPopupVisible }: deleteProps) => {
 
     const router = useRouter();
-    const deleteAlert = async(alertId: number) => {
-        console.log(alertId);
+    const deleteAlert = async(alertId?: number) => {
+        if(!alertId){
+            return Alert.alert("削除失敗");
+        }
+        console.log("削除するId = " + alertId);
         const response = await api.post("/deleteAlert", {
             alertId: alertId
         },
@@ -47,22 +50,28 @@ export default DeleteButton;
 const styles = StyleSheet.create({
     deleteButtonContainer: {
       alignItems: 'center',
+      marginVertical: 12,
     },
     deleteButton: {
-      flexDirection: 'row',
+      backgroundColor: '#d32f2f', // 落ち着いた赤（Material Red 700）
+      paddingVertical: 14,
+      borderRadius: 14,
+      marginBottom: 7,
       alignItems: 'center',
-      backgroundColor: '#e53935', // 赤系の警告カラー
-      paddingVertical: 8,
-      paddingHorizontal: 16,
-      borderRadius: 12,
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.2,
-      shadowRadius: 3,
+      shadowColor: '#b00020',     // 赤系の影
+      shadowOffset: { width: 0, height: 6 },
+      shadowOpacity: 0.4,
+      shadowRadius: 12,
+      elevation: 6,
+      width: '100%',
+      maxWidth: 360,
     },
     deleteText: {
-      color: '#fff',      
-      fontWeight: '600',
-      fontSize: 16,
+      color: '#fff',
+      fontWeight: '700',
+      fontSize: 18,
+      letterSpacing: 1,
     },
 });
+  
+  
