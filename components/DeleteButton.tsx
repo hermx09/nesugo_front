@@ -27,7 +27,7 @@ const DeleteButton = ({ alertId, setIsPopupVisible }: deleteProps) => {
         });
 
         if(response.status == 200){
-            Alert.alert("削除しました");
+            //Alert.alert("削除しました");
             removeTargetLocation(Number(alertId));
             setIsPopupVisible(false);
             router.push("/stationList");

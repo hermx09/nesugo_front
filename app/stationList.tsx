@@ -3,12 +3,12 @@ import { View, Text, TextInput, Button, Modal, StyleSheet, FlatList, TouchableOp
 import { startLocationTracking } from '@/services/LocationService';
 import api from '@/services/axiosInstance';
 import { AlertItemsComponent } from '@/components/AlertItemsComponent';
-import DateTimePicker, { DateTimePickerEvent} from '@react-native-community/datetimepicker';
+//import DateTimePicker, { DateTimePickerEvent} from '@react-native-community/datetimepicker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { jwtDecode } from 'jwt-decode';
 import LogoutComponent from '@/components/LogoutComponent';
 import AlertModal from '@/components/AlertModal';
-import { addTargetLocation, getTargetLocations } from '@/services/addTargetLocation';
+import { addTargetLocation, getTargetLocations, removeTargetLocation, removeAllTargetLocations } from '@/services/addTargetLocation';
 
 
 // アラートアイテムの型定義
@@ -37,7 +37,7 @@ export default function StationList() {
     const [userName, setUserName] = useState("");
     const [userId, setUserId] = useState(0);
     const [buttonStatus, setButtonStatus] = useState('');
-    const [selectedAlertId, setSelectedAlertId] = useState(0);
+    //const [selectedAlertId, setSelectedAlertId] = useState(0);
     const [selectedAlert, setSelectedAlert] = useState<AlertItem>();
 
     useEffect(() => {
@@ -95,11 +95,11 @@ export default function StationList() {
                 lat: item.lat,
                 lon: item.lon
             }));
+            removeAllTargetLocations();
             for(const alert of alerts){
-                if(!alert.active){
-                    continue;
-                }
-                await addTargetLocation(Number(alert.alertId), alert.lat, alert.lon);
+                if(alert.active){
+                  await addTargetLocation(Number(alert.alertId), alert.lat, alert.lon);
+                }                
             }
             console.log(alerts);
             const targets = await getTargetLocations();

@@ -5,7 +5,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 export default function Layout() {
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
+    <GestureHandlerRootView style={{ flex: 1, backgroundColor: '#f0f0f0' }}>
       <SafeAreaView style={{ flex: 1 }}>
         <HeaderComponent />
         <Stack screenOptions = {{ headerShown: false , gestureEnabled: false}}/>

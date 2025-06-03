@@ -1,8 +1,8 @@
-import { View, Text, Button, Modal, TextInput, TouchableOpacity } from 'react-native';
+import { View, Text, Button, Modal, TextInput, TouchableOpacity, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { useState, useEffect } from 'react';
 import api from '@/services/axiosInstance';
 import { useRouter } from 'expo-router';
-import { Alert } from 'react-native';
+import { Alert, Image } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StyleSheet } from 'react-native';
 import axios from 'axios';
@@ -101,19 +101,25 @@ export default function LoginView({ returnText }: returnProps) {
         setTimeout(() => {
           router.push('/stationList');
         }, 500);
-      } else if (registResult.status === 409) {
+      }
+    } catch (error: any) {
+      if (error.response?.status === 409) {
+        console.log(error);
         Alert.alert('ユーザーネームが重複しています');
       } else {
-        Alert.alert('登録に失敗しました');
+        console.log(error);
+        Alert.alert('エラーが発生しました');
       }
-    } catch (error) {
-      console.error(error);
     }
   };
 
   return (
+	<TouchableWithoutFeedback onPress={() => {Keyboard.dismiss()}}>
     <View style={styles.container}>
-      <Text style={styles.title}>ログイン</Text>
+      <Image
+          source={require('../assets/images/mainIcon.png')}
+          style={ styles.image }
+      />
       <TextInput
         style={styles.input}
         value={userName}
@@ -121,6 +127,7 @@ export default function LoginView({ returnText }: returnProps) {
         placeholder="ユーザーネームを入力"
         autoCapitalize="none"
         autoCorrect={false}
+		returnKeyType="done"
       />
       {returnText.map((msg, i) => (
         <Text key={i} style={styles.logText}>
@@ -135,25 +142,39 @@ export default function LoginView({ returnText }: returnProps) {
       </TouchableOpacity>
 
       <Modal visible={isRegistUser} animationType="fade" transparent={true}>
-        <View style={styles.popupOverlay}>
-          <View style={styles.popup}>
-            <Text style={styles.modalTitle}>ユーザー登録</Text>
-            <TextInput
-              style={styles.input}
-              value={userName}
-              onChangeText={setUserName}
-              placeholder="ユーザーネームを入力"
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
-            <View style={styles.modalButtons}>
-              <Button title="閉じる" onPress={() => setIsRegistUser(false)} />
-              <Button title="登録" onPress={registUser} />
-            </View>
-          </View>
-        </View>
-      </Modal>
-    </View>
+      <TouchableWithoutFeedback onPress={() => {
+				Keyboard.dismiss();
+				setIsRegistUser(false);
+	  		}
+		}>
+		<View style={styles.popupOverlay}>
+		<TouchableWithoutFeedback onPress={() => {Keyboard.dismiss()}}>
+			<View style={styles.popup}>
+			<Text style={styles.modalTitle}>ユーザー登録</Text>
+			<TextInput
+				style={styles.input}
+				value={userName}
+				onChangeText={setUserName}
+				placeholder="ユーザーネームを入力"
+				autoCapitalize="none"
+				autoCorrect={false}
+				returnKeyType="done"
+			/>
+			<View style={styles.modalButtons}>
+				<TouchableOpacity style={styles.modalButtonCancel} onPress={() => setIsRegistUser(false)}>
+					<Text style={styles.modalButtonText}>キャンセル</Text>
+				</TouchableOpacity>
+        		<TouchableOpacity style={styles.modalButtonRegister} onPress={registUser}>
+          			<Text style={styles.modalButtonText}>登録</Text>
+        		</TouchableOpacity>
+      		</View>
+			</View>
+			</TouchableWithoutFeedback>
+		</View>
+		</TouchableWithoutFeedback>
+		</Modal>
+		</View>
+	</TouchableWithoutFeedback>
   );
 }
 
@@ -163,6 +184,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 20,
     backgroundColor: '#f0f4f8',
+	paddingBottom: 250,
   },
   title: {
     fontSize: 26,
@@ -204,9 +226,13 @@ const styles = StyleSheet.create({
   },
   popup: {
     backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 20,
-    elevation: 4,
+    borderRadius: 16,
+    padding: 24,
+    elevation: 6,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
   },
   modalTitle: {
     fontSize: 20,
@@ -217,7 +243,32 @@ const styles = StyleSheet.create({
   modalButtons: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    gap: 10,
     marginTop: 20,
+    gap: 16,
+  },
+  modalButtonCancel: {
+    flex: 1,
+    backgroundColor: '#ccc',
+    paddingVertical: 12,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  modalButtonRegister: {
+    flex: 1,
+    backgroundColor: '#4682B4',
+    paddingVertical: 12,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  modalButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  image: {
+    width: 300,
+    height: 300,
+    resizeMode: 'contain',
+    alignSelf: 'center'
   },
 });

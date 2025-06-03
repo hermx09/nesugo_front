@@ -62,3 +62,7 @@ export const updateTargetLocation = async (
   
     return locations[index];
 };
+
+export const removeAllTargetLocations = async (): Promise<void> => {
+  await SecureStore.deleteItemAsync(LOCATIONS_KEY);
+};
