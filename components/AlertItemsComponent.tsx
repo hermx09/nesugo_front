@@ -3,7 +3,7 @@ import {FlatList, TouchableOpacity, View, Text, StyleSheet, Switch, Alert } from
 import type { AlertItem } from '@/app/stationList';
 import api from '@/services/axiosInstance';
 import { getUserAlerts } from '@/services/AlertService';
-import { getTargetLocations, removeTargetLocation } from '@/services/addTargetLocation';
+import { addTargetLocation, getTargetLocations, removeTargetLocation } from '@/services/addTargetLocation';
 
 
 type AlertProps = {

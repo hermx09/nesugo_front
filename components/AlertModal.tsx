@@ -1,11 +1,12 @@
 import React from 'react';
 import { useState } from 'react';
-import { View, Modal, Text, TextInput, Button, FlatList, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { View, Modal, Text, TextInput, Button, FlatList, TouchableOpacity, StyleSheet, Alert, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import api from '@/services/axiosInstance';
 import type { AlertItem } from '@/app/stationList';
 import DeleteButton from './DeleteButton';
 import { useRouter } from 'expo-router';
+import { addTargetLocation } from '@/services/addTargetLocation';
 
 
 type AlertModalProps = {
@@ -66,14 +67,14 @@ const AlertModal = ({
             
     }
 
-    const onTimeChange = (event: DateTimePickerEvent, selectedDate: Date | undefined) => {
-        const currentDate = selectedDate || selectedTime;
-        if (currentDate instanceof Date) {            
-            setSelectedTime(currentDate);            
-        } else {            
-            console.error('Invalid date selected');
-        }
-    }
+    // const onTimeChange = (event: DateTimePickerEvent, selectedDate: Date | undefined) => {
+    //     const currentDate = selectedDate || selectedTime;
+    //     if (currentDate instanceof Date) {            
+    //         setSelectedTime(currentDate);            
+    //     } else {            
+    //         console.error('Invalid date selected');
+    //     }
+    // }
 
     const setSelectedInfo = (item: Station) => {
         setSearchKeyword(`${item.stationName} (${item.lineName}: ${item.prefName})`);
@@ -108,6 +109,7 @@ const AlertModal = ({
                         // , alertTime: alertTime
                         , active: true, lat: response.data.lat, lon: response.data.lon},
                 ]);
+                router.push("/stationList");
             }catch(error){
                 console.error("エラー" +  error);
             }
@@ -147,7 +149,7 @@ const AlertModal = ({
                 }    
             });
             if(response.status == 200){
-                Alert.alert("変更しました");
+                //Alert.alert("変更しました");
                 setIsPopupVisible(false);
                 router.push("/stationList");
             }else{
@@ -158,26 +160,33 @@ const AlertModal = ({
         }
     }
 
-    const convertTimeStringToDate = (timeString: string): Date => {
-        const [hours, minutes, seconds] = timeString.split(":").map(Number);
-        const now = new Date();
-        now.setHours(hours);
-        now.setMinutes(minutes);
-        now.setSeconds(seconds || 0); // 秒がない場合は 0
-        now.setMilliseconds(0); // ミリ秒もリセット
-        return now;
-      };
+    // const convertTimeStringToDate = (timeString: string): Date => {
+    //     const [hours, minutes, seconds] = timeString.split(":").map(Number);
+    //     const now = new Date();
+    //     now.setHours(hours);
+    //     now.setMinutes(minutes);
+    //     now.setSeconds(seconds || 0); // 秒がない場合は 0
+    //     now.setMilliseconds(0); // ミリ秒もリセット
+    //     return now;
+    //   };
 
-    const formatDateToTimeString = (date: Date): string => {
-        const hours = String(date.getHours()).padStart(2, "0");
-        const minutes = String(date.getMinutes()).padStart(2, "0");
-        const seconds = String(date.getSeconds()).padStart(2, "0");
-        return `${hours}:${minutes}:${seconds}`;
-      };
+    // const formatDateToTimeString = (date: Date): string => {
+    //     const hours = String(date.getHours()).padStart(2, "0");
+    //     const minutes = String(date.getMinutes()).padStart(2, "0");
+    //     const seconds = String(date.getSeconds()).padStart(2, "0");
+    //     return `${hours}:${minutes}:${seconds}`;
+    //   };
 
   return (
     <Modal visible={isPopupVisible} animationType="fade" transparent={true}>
+      <TouchableWithoutFeedback onPress={() => 
+            {
+                Keyboard.dismiss();
+                setIsPopupVisible(false)
+            }
+        }>
       <View style={styles.popupOverlay}>
+      <TouchableWithoutFeedback onPress={() => {Keyboard.dismiss()}}>
         <View style={styles.popup}>
           <Text style={styles.alertText}>
             {buttonStatus === '登録' ? 'アラート登録' : 'アラート変更'}
@@ -201,13 +210,14 @@ const AlertModal = ({
             value={searchKeyword}
             onChangeText={onSearchInput}
             placeholder="駅名を入力"
+            returnKeyType="done"
           />
           {searchResults.length > 0 && (
             <FlatList
               data={searchResults}
-              keyExtractor={(item: AlertItem) => item.alertId?.toString()}
+              keyExtractor={(item) => item.stationId?.toString()}
               style={styles.resultsList}
-              renderItem={({ item }: { item: AlertItem }) => (
+              renderItem={({ item }) => (
                 <TouchableOpacity onPress={() => setSelectedInfo(item)} style={styles.resultItem}>
                     <Text>{item.stationName} ({item.lineName} {item.prefName})</Text>
                 </TouchableOpacity>        
@@ -229,7 +239,9 @@ const AlertModal = ({
                 <Text style={styles.cancelButtonText}>キャンセル</Text>
             </TouchableOpacity>
         </View>
+        </TouchableWithoutFeedback>
       </View>
+      </TouchableWithoutFeedback>
     </Modal>
   );
 };
