@@ -5,17 +5,17 @@ let sound: Audio.Sound | null = null;
 
 export const loadSound = async () => {
     if (!sound) {
-      const { sound: loadedSound } = await Audio.Sound.createAsync(
-        require('../assets/sounds/startsound.mp3')
-      );
-      sound = loadedSound;
-  
       await Audio.setAudioModeAsync({
         allowsRecordingIOS: false,
         staysActiveInBackground: true,
         playsInSilentModeIOS: true,
         shouldDuckAndroid: false,
       });
+
+      const { sound: loadedSound } = await Audio.Sound.createAsync(
+        require('../assets/sounds/startsound.mp3')
+      );
+      sound = loadedSound;
   
       sound.setOnPlaybackStatusUpdate((status) => {
         if (status.isLoaded) {

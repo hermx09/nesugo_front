@@ -113,6 +113,8 @@ export const startLocationTracking = async (onLog: (msg: string) => void) => {
 		  notificationBody: '降車駅を監視しています。',
 		  notificationColor: '#FF0000',
 		},
+		activityType: Location.ActivityType.OtherNavigation,
+  		pausesUpdatesAutomatically: false,
 	  });
 	}
   };
