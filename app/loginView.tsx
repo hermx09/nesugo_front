@@ -36,7 +36,7 @@ export default function LoginView({ returnText }: returnProps) {
     if (userName.trim() === '') {
       Alert.alert('ユーザーネームを入力して下さい');
       return;
-    }else if (password.trim() === '') {
+    }else if (!isEnableAuth && password.trim() === '') {
 		Alert.alert('パスワードを入力して下さい');
 		return;
 	}
