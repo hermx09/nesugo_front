@@ -3,8 +3,8 @@ import { Alert } from 'react-native';
 
 const authenticateBiometric = async () => {
 
-    // const supportResult = await LocalAuthentication.supportedAuthenticationTypesAsync();
-    // alert(supportResult);
+    const supportResult = await LocalAuthentication.supportedAuthenticationTypesAsync();
+    alert("サポートされてるタイプ" + supportResult);
 
     const compatible = await LocalAuthentication.hasHardwareAsync();
     if (!compatible) {
@@ -17,10 +17,10 @@ const authenticateBiometric = async () => {
     }
 
   const result = await LocalAuthentication.authenticateAsync({
-    promptMessage: "認証を促すメッセージ",
-    cancelLabel: "キャンセルラベル",
-    fallbackLabel: "認証失敗時のメッセージ",
-    disableDeviceFallback: false,
+    promptMessage: "生体認証でログイン",
+    cancelLabel: "キャンセル",
+    fallbackLabel: "パスコードを使用",
+    disableDeviceFallback: true,
   });
   if (!result.success) {
     LocalAuthentication.cancelAuthenticate();

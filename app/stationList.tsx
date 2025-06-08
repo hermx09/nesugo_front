@@ -10,7 +10,6 @@ import LogoutComponent from '@/components/LogoutComponent';
 import AlertModal from '@/components/AlertModal';
 import { addTargetLocation, getTargetLocations, removeTargetLocation, removeAllTargetLocations } from '@/services/addTargetLocation';
 
-
 // アラートアイテムの型定義
 export type AlertItem = {
     alertId: number;

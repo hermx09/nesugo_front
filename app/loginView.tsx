@@ -32,11 +32,13 @@ export default function LoginView({ returnText }: returnProps) {
     checkToken();
   }, []);
 
-  const loginByUserName = async () => {
+  const loginByUserName = async (isEnableAuth: boolean) => {
+	Alert.alert("最初" + isEnableAuth);
     if (userName.trim() === '') {
       Alert.alert('ユーザーネームを入力して下さい');
       return;
     }else if (!isEnableAuth && password.trim() === '') {
+		Alert.alert("中は" + isEnableAuth);
 		Alert.alert('パスワードを入力して下さい');
 		return;
 	}
@@ -142,7 +144,7 @@ export default function LoginView({ returnText }: returnProps) {
       if (result.status === 200) {
         if(await authenticateBiometric()){
 			setIsEnableAuth(true);
-			await loginByUserName();
+			await loginByUserName(true);
 		}else{
 			Alert.alert("生体認証失敗");
 		}
@@ -195,7 +197,7 @@ export default function LoginView({ returnText }: returnProps) {
           {msg}
         </Text>
       ))}
-      <TouchableOpacity style={styles.button} onPress={loginByUserName}>
+      <TouchableOpacity style={styles.button} onPress={() => loginByUserName(false)}>
         <Text style={styles.buttonText}>ログイン</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.button} onPress={() => setIsRegistUser(true)}>

@@ -4,6 +4,7 @@ import type { AlertItem } from '@/app/stationList';
 import api from '@/services/axiosInstance';
 import { getUserAlerts } from '@/services/AlertService';
 import { addTargetLocation, getTargetLocations, removeTargetLocation } from '@/services/addTargetLocation';
+import * as Haptics from 'expo-haptics';
 
 
 type AlertProps = {
@@ -23,14 +24,14 @@ export const AlertItemsComponent = ({userId, alertItems, setButtonStatus, setIsP
 
     
 
-    const toggleAlert = async (alertId: number, alertValue: boolean) => {
+    const toggleAlert = async (alert: AlertItem, alertValue: boolean) => {
         setLocalAlertItems(prevItems => 
             prevItems.map(item => 
-                item.alertId === alertId ? { ...item, active: alertValue}: item
+                item.alertId === alert.alertId ? { ...item, active: alertValue}: item
             ));
         try{
             const response = await api.post('/toggleAlert', {
-                alertId: alertId,
+                alertId: alert.alertId,
                 active: alertValue
             },
             {
@@ -41,8 +42,10 @@ export const AlertItemsComponent = ({userId, alertItems, setButtonStatus, setIsP
             });
             const alerts = await getUserAlerts(userId);
             if(!alertValue){
-                removeTargetLocation(Number(alertId));
+                removeTargetLocation(Number(alert.alertId));
                 console.log(getTargetLocations);
+            }else{
+                addTargetLocation(Number(alert.alertId), alert.lat, alert.lon);
             }
             setLocalAlertItems(alerts);
         }catch(error){
@@ -57,7 +60,12 @@ export const AlertItemsComponent = ({userId, alertItems, setButtonStatus, setIsP
             data={localAlertItems}
             keyExtractor={(item: AlertItem) => item.alertId.toString()}
             renderItem={({ item }: {item: AlertItem}) => (
-                <TouchableOpacity onPress={() => modifyPopup(item)}>
+                <TouchableOpacity onPress={() => modifyPopup(item)} 
+                    onLongPress={async () =>{
+                            await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                            modifyPopup(item);
+                        }                    }
+                    delayLongPress={300}>
                     <View style={styles.alertButton}>
                         <View style={styles.stationContainer}>
                         <Text style={styles.itemText} numberOfLines={1} ellipsizeMode="tail">
@@ -71,13 +79,17 @@ export const AlertItemsComponent = ({userId, alertItems, setButtonStatus, setIsP
                         <View style={styles.switchContainer}>
                         <Switch
                             value={item.active}
-                            onValueChange={(value: boolean) => toggleAlert(item.alertId, value)}
+                            onValueChange={(value: boolean) => toggleAlert(item, value)}
                         />
                         </View>
                     </View>
                 </TouchableOpacity>
             )}
-            ListEmptyComponent={<Text>アラートがありません。</Text>}
+            ListEmptyComponent={
+                <View style={styles.emptyContainer}>
+                    <Text style={styles.emptyText}>アラートがありません。</Text>
+                </View>
+            }
             />
         </View>
     )
@@ -125,4 +137,14 @@ const styles = StyleSheet.create({
     switchContainer: {
         marginLeft: 12,          // スイッチのまわりに余白を
     },
+    emptyContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingVertical: 50
+    },
+    emptyText: {
+        fontSize: 18,
+        color: '#888'
+    }
 });
