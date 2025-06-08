@@ -4,15 +4,17 @@ import { Alert } from 'react-native';
 const authenticateBiometric = async () => {
 
     const supportResult = await LocalAuthentication.supportedAuthenticationTypesAsync();
-    alert("サポートされてるタイプ" + supportResult);
+    Alert.alert("サポートされてるタイプ" + supportResult);
 
     const compatible = await LocalAuthentication.hasHardwareAsync();
     if (!compatible) {
+        Alert.alert("次" + compatible);
         return false;
     }
 
     const enrolled = await LocalAuthentication.isEnrolledAsync();
     if (!enrolled) {
+        Alert.alert("最後" + enrolled);
         return false;
     }
 
