@@ -9,6 +9,7 @@ import axios from 'axios';
 import { startLocationTracking } from '@/services/LocationService';
 import authenticateBiometric from '@/services/authenticateBiometric';
 import { setLogCallback } from '@/services/LogService';
+import * as SecureStore from 'expo-secure-store';
 
 type returnProps = {
   returnText: string[];
@@ -56,6 +57,9 @@ export default function LoginView({ returnText }: returnProps) {
       );
 
       if (loginResult.status === 200) {
+		if(!isEnableAuth){
+			addUserName(userName);
+		}
         startLocationTracking((msg) => {
         });
         console.log("ログイン結果" + loginResult);
@@ -110,6 +114,7 @@ export default function LoginView({ returnText }: returnProps) {
             return;
           } 
         setTimeout(() => {
+			addUserName(userName);
           router.push('/stationList');
         }, 500);
       }
@@ -129,6 +134,10 @@ export default function LoginView({ returnText }: returnProps) {
       Alert.alert('ユーザーネームを入力して下さい');
       return;
     }
+	if(!isUserNameSaved){
+		Alert.alert('ユーザーネームが違います');
+		return
+	}
     try {
       const result = await api.post(
         '/getUser',
@@ -164,6 +173,24 @@ export default function LoginView({ returnText }: returnProps) {
       }
     }
   };
+
+  const getSavedUserNames = async () => {
+	const json = await SecureStore.getItemAsync('savedUserNames');
+	return json ? JSON.parse(json): [];
+  }
+
+  const addUserName = async (userName: string) =>{
+	const savedNames = await getSavedUserNames();
+	if(!savedNames.includes(userName)){
+		savedNames.push(userName);
+		await SecureStore.setItemAsync('savedUserNames', JSON.stringify(savedNames));
+	}
+  } 
+
+  const isUserNameSaved = async (userName: string) => {
+	const savedNames = await getSavedUserNames();
+	return savedNames.includes(userName);
+  }
 
   return (
 	<TouchableWithoutFeedback onPress={() => {Keyboard.dismiss()}}>
