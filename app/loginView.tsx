@@ -7,7 +7,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StyleSheet } from 'react-native';
 import axios from 'axios';
 import { startLocationTracking } from '@/services/LocationService';
+import authenticateBiometric from '@/services/authenticateBiometric';
 import { setLogCallback } from '@/services/LogService';
+import * as SecureStore from 'expo-secure-store';
 
 type returnProps = {
   returnText: string[];
@@ -15,7 +17,9 @@ type returnProps = {
 
 export default function LoginView({ returnText }: returnProps) {
   const [userName, setUserName] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
   const [isRegistUser, setIsRegistUser] = useState<boolean>(false);
+  //const [isEnableAuth, setIsEnableAuth] = useState<boolean>(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -29,16 +33,21 @@ export default function LoginView({ returnText }: returnProps) {
     checkToken();
   }, []);
 
-  const loginByUserName = async () => {
+  const loginByUserName = async (isEnableAuth: boolean) => {
+	//Alert.alert("最初" + isEnableAuth);
     if (userName.trim() === '') {
       Alert.alert('ユーザーネームを入力して下さい');
       return;
-    }
+    }else if (!isEnableAuth && password.trim() === '') {
+		// Alert.alert("中は" + isEnableAuth);
+		Alert.alert('パスワードを入力して下さい');
+		return;
+	}
 
     try {
       const loginResult = await api.post(
         '/login',
-        { userName },
+        { userName, password, isEnableAuth },
         {
           headers: {
             'Content-Type': 'application/json',
@@ -48,6 +57,9 @@ export default function LoginView({ returnText }: returnProps) {
       );
 
       if (loginResult.status === 200) {
+		if(!isEnableAuth){
+			addUserName(userName);
+		}
         startLocationTracking((msg) => {
         });
         console.log("ログイン結果" + loginResult);
@@ -75,12 +87,15 @@ export default function LoginView({ returnText }: returnProps) {
     if (userName.trim() === '') {
       Alert.alert('ユーザーネームを入力して下さい');
       return;
-    }
+    }else if (password.trim() === '') {
+		Alert.alert('パスワードを入力して下さい');
+		return;
+	}
 
     try {
       const registResult = await api.post(
         '/registUser',
-        { userName },
+        { userName, password },
         {
           headers: {
             'Content-Type': 'application/json',
@@ -99,6 +114,7 @@ export default function LoginView({ returnText }: returnProps) {
             return;
           } 
         setTimeout(() => {
+			addUserName(userName);
           router.push('/stationList');
         }, 500);
       }
@@ -112,6 +128,70 @@ export default function LoginView({ returnText }: returnProps) {
       }
     }
   };
+
+  const getUser = async () => {
+    if (userName.trim() === '') {
+      Alert.alert('ユーザーネームを入力して下さい');
+      return;
+    }
+    const isSaved = await isUserNameSaved(userName);
+	if(!isSaved){
+		Alert.alert('ユーザーネームが違います');
+		return
+	}
+    try {
+      const result = await api.post(
+        '/getUser',
+        { userName },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+          },
+        }
+      );
+
+      if (result.status === 200) {
+        if(await authenticateBiometric()){
+			//setIsEnableAuth(true);
+			await loginByUserName(true);
+		}else{
+			Alert.alert("生体認証失敗");
+		}
+      }
+    } catch (error) {
+      console.error(error);
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status === 401) {
+          Alert.alert('ユーザーネームが一致しません');
+        } else {
+          Alert.alert('ログイン失敗');
+          console.error('Axios error:', error);
+        }
+      } else {
+        Alert.alert('予期しないエラーが発生しました');
+        console.error('Unknown error:', error);
+      }
+    }
+  };
+
+  const getSavedUserNames = async () => {
+	const json = await SecureStore.getItemAsync('savedUserNames');
+	return json ? JSON.parse(json): [];
+  }
+
+  const addUserName = async (userName: string) =>{
+	const savedNames = await getSavedUserNames();
+	if(!savedNames.includes(userName)){
+		savedNames.push(userName);
+		await SecureStore.setItemAsync('savedUserNames', JSON.stringify(savedNames));
+	}
+  } 
+
+  const isUserNameSaved = async (userName: string) => {
+	const savedNames = await getSavedUserNames();
+	return savedNames.includes(userName);
+  }
 
   return (
 	<TouchableWithoutFeedback onPress={() => {Keyboard.dismiss()}}>
@@ -129,12 +209,23 @@ export default function LoginView({ returnText }: returnProps) {
         autoCorrect={false}
 		returnKeyType="done"
       />
+	  <TextInput
+			style={styles.input}
+			value={password}
+			onChangeText={setPassword}
+			placeholder="パスワードを入力"
+			autoCapitalize="none"
+			autoCorrect={false}
+			returnKeyType="done"
+			secureTextEntry={true}
+			onFocus={getUser}
+		/>
       {returnText.map((msg, i) => (
         <Text key={i} style={styles.logText}>
           {msg}
         </Text>
       ))}
-      <TouchableOpacity style={styles.button} onPress={loginByUserName}>
+      <TouchableOpacity style={styles.button} onPress={() => loginByUserName(false)}>
         <Text style={styles.buttonText}>ログイン</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.button} onPress={() => setIsRegistUser(true)}>
@@ -159,6 +250,16 @@ export default function LoginView({ returnText }: returnProps) {
 				autoCapitalize="none"
 				autoCorrect={false}
 				returnKeyType="done"
+			/>
+			<TextInput
+				style={styles.input}
+				value={password}
+				onChangeText={setPassword}
+				placeholder="パスワードを入力"
+				autoCapitalize="none"
+				autoCorrect={false}
+				returnKeyType="done"
+				secureTextEntry={true}
 			/>
 			<View style={styles.modalButtons}>
 				<TouchableOpacity style={styles.modalButtonCancel} onPress={() => setIsRegistUser(false)}>

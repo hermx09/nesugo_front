@@ -36,7 +36,7 @@ const AlertModal = ({
   userId
 }: AlertModalProps) => {
 
-    const [selectedTime, setSelectedTime] = useState(new Date());
+    //const [selectedTime, setSelectedTime] = useState(new Date());
     const [searchKeyword, setSearchKeyword] = useState<string>('');
     const [searchResults, setSearchResults] = useState<Station[]>([]);
     const [selectedStation, setSelectedStation] = useState<Station | null>(null);
@@ -124,6 +124,9 @@ const AlertModal = ({
         let stationId  = alertItem?.stationId;
         if(selectedStation?.stationId){
            stationId =  selectedStation.stationId;
+        }else{
+            Alert.alert('駅を選択してください。');
+            return;
         }
 
         // let alertTime = formatDateToTimeString(convertTimeStringToDate(alertItem.alertTime));

@@ -21,7 +21,8 @@
           "audio",
           "fetch"
         ],
-        "NSUserTrackingUsageDescription": "このアプリでは通知を使用します"
+        "NSUserTrackingUsageDescription": "このアプリでは通知を使用します",
+        "NSFaceIDUsageDescription": "このアプリではFace IDを使って認証します"
       },
       "sounds": true
     },

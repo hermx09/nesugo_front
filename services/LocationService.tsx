@@ -6,6 +6,7 @@ import { getTargetLocations } from './addTargetLocation';
 import { requestNotificationPermission } from '@/lib/notifications';
 import { sendAlarmNotification } from '@/lib/notifications';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Alert, Linking } from 'react-native';
 
 // タスク名を決める
 const LOCATION_TASK_NAME = 'background-location-task';
@@ -27,14 +28,12 @@ TaskManager.defineTask(LOCATION_TASK_NAME, async ({ data, error }) => {
 		//log(`現在地: ${latitude}, ${longitude}`);
 		
 		const targets = await getTargetLocations();
-		log(`📍 監視対象数: ${targets.length}`);
+		//log(`📍 監視対象数: ${targets.length}`);
 		for(const target of targets){
 			const distance = calculateDistance(latitude, longitude, target.lat, target.lon);
 			if (distance < 0.5) {
 			await sendAlarmNotification();
 			//log("アラーム鳴動！");
-			} else {
-			//log("距離遠い");
 			}
 		}
 	  }
@@ -90,7 +89,22 @@ export const startLocationTracking = async (onLog: (msg: string) => void) => {
 	const { status: bgStatus } = await Location.requestBackgroundPermissionsAsync();
 	if (bgStatus !== 'granted') {
 	  //onLog("バックグラウンド位置情報の許可が必要です");
-	  alert("バックグラウンド位置情報の許可が必要です。設定から許可してください。");
+	  Alert.alert(
+		"位置情報の許可が必要です",
+		"バックグラウンド位置情報の許可が必要です。設定から許可してください。",
+		[
+		  {
+			text: "キャンセル",
+			style: "cancel"
+		  },
+		  {
+			text: "設定を開く",
+			onPress: () => {
+			  Linking.openSettings(); // ユーザーを設定画面に送る
+			}
+		  }
+		]
+	  );
 	  return;
 	}
   
@@ -113,7 +127,17 @@ export const startLocationTracking = async (onLog: (msg: string) => void) => {
 		  notificationBody: '降車駅を監視しています。',
 		  notificationColor: '#FF0000',
 		},
+		activityType: Location.ActivityType.OtherNavigation,
+  		pausesUpdatesAutomatically: false,
 	  });
 	}
+	setInterval(async () => {
+		const hasStarted = await Location.hasStartedLocationUpdatesAsync(LOCATION_TASK_NAME);
+		if (!hasStarted) {
+			console.warn("バックグラウンドタスクが停止しています。再起動を試みます。");
+			await startLocationTracking(() => {});
+		}
+	}, 1000 * 60 * 10); // 10分ごとにチェック
+
   };
   
