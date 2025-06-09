@@ -134,7 +134,8 @@ export default function LoginView({ returnText }: returnProps) {
       Alert.alert('ユーザーネームを入力して下さい');
       return;
     }
-	if(!isUserNameSaved){
+    const isSaved = await isUserNameSaved(userName);
+	if(!isSaved){
 		Alert.alert('ユーザーネームが違います');
 		return
 	}
