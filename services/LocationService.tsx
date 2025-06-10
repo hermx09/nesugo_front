@@ -131,13 +131,13 @@ export const startLocationTracking = async (onLog: (msg: string) => void) => {
   		pausesUpdatesAutomatically: false,
 	  });
 	}
-	setInterval(async () => {
-		const hasStarted = await Location.hasStartedLocationUpdatesAsync(LOCATION_TASK_NAME);
-		if (!hasStarted) {
-			console.warn("バックグラウンドタスクが停止しています。再起動を試みます。");
-			await startLocationTracking(() => {});
-		}
-	}, 1000 * 60 * 10); // 10分ごとにチェック
+	// setInterval(async () => {
+	// 	const hasStarted = await Location.hasStartedLocationUpdatesAsync(LOCATION_TASK_NAME);
+	// 	if (!hasStarted) {
+	// 		console.warn("バックグラウンドタスクが停止しています。再起動を試みます。");
+	// 		await startLocationTracking(() => {});
+	// 	}
+	// }, 1000 * 60 * 10); // 10分ごとにチェック
 
   };
   
