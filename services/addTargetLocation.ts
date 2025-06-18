@@ -1,6 +1,6 @@
 import * as SecureStore from 'expo-secure-store';
 
-type TargetLocation = {
+export type TargetLocation = {
     alertId: number;
     lat: number;
     lon: number;

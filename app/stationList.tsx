@@ -9,6 +9,7 @@ import { jwtDecode } from 'jwt-decode';
 import LogoutComponent from '@/components/LogoutComponent';
 import AlertModal from '@/components/AlertModal';
 import { addTargetLocation, getTargetLocations, removeTargetLocation, removeAllTargetLocations } from '@/services/addTargetLocation';
+import { TargetLocation } from '@/services/addTargetLocation';
 
 // アラートアイテムの型定義
 export type AlertItem = {
@@ -38,6 +39,7 @@ export default function StationList() {
     const [buttonStatus, setButtonStatus] = useState('');
     //const [selectedAlertId, setSelectedAlertId] = useState(0);
     const [selectedAlert, setSelectedAlert] = useState<AlertItem>();
+    const [targetItems, setTargetItems] = useState<TargetLocation[]>([]);
 
     useEffect(() => {
         startLocationTracking((msg) => {
@@ -102,6 +104,7 @@ export default function StationList() {
             }
             console.log(alerts);
             const targets = await getTargetLocations();
+            setTargetItems(targets);
             console.log(targets);
             setAlertItems(alerts);
         }catch(error){
@@ -136,6 +139,13 @@ export default function StationList() {
             setIsPopupVisible={setIsPopupVisible}
             modifyPopup={modifyPopup}
           />
+          <View>
+          {targetItems.map((target, index) => (
+            <Text key={target.alertId || index}>
+              {index + 1}. {target.alertId}（緯度: {target.lat}, 経度: {target.lon}）
+            </Text>
+          ))}
+        </View>
         </View>
       );
 }
