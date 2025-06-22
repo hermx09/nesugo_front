@@ -42,12 +42,21 @@ export const AlertItemsComponent = ({userId, alertItems, setButtonStatus, setIsP
             });
             const alerts = await getUserAlerts(userId);
             if(!alertValue){
+                console.log("消すのは" + Number(alert.alertId));
                 removeTargetLocation(Number(alert.alertId));
-                console.log(getTargetLocations);
+                // console.log(getTargetLocations);
             }else{
-                addTargetLocation(Number(alert.alertId), alert.lat, alert.lon);
+                for(const item of alerts){   
+                    console.log("追加1個は" + JSON.stringify(item));
+                    if(item.alertId === alert.alertId){
+                        console.log("追加latは" + item.lat);
+                        addTargetLocation(Number(alert.alertId), item.lat, item.lon);        
+                    }
+                }
+                console.log("追加は" + Number(alert.alertId));
             }
             setLocalAlertItems(alerts);
+            getTargetLocations();
         }catch(error){
             console.error("error" + error);
         }

@@ -102,10 +102,10 @@ export default function StationList() {
                   await addTargetLocation(Number(alert.alertId), alert.lat, alert.lon);
                 }                
             }
-            console.log(alerts);
+            // console.log(alerts);
             const targets = await getTargetLocations();
             setTargetItems(targets);
-            console.log(targets);
+            // console.log(targets);
             setAlertItems(alerts);
         }catch(error){
             console.error(error);
