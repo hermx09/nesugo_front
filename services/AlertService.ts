@@ -18,7 +18,9 @@ export const getUserAlerts = async (userId: number): Promise<AlertItem[]> => {
       stationName: item.stationName,
       lineName: item.lineName,
       prefName: item.prefName,
-      active: item.active
+      active: item.active,
+      lat: item.lat,
+      lon: item.lon
     }));
   } catch (error) {
     console.error("getUserAlerts error:", error);

@@ -7,6 +7,7 @@ import { requestNotificationPermission } from '@/lib/notifications';
 import { sendAlarmNotification } from '@/lib/notifications';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Alert, Linking } from 'react-native';
+import { removeAllTargetLocations } from './addTargetLocation';
 
 // タスク名を決める
 const LOCATION_TASK_NAME = 'background-location-task';
@@ -61,7 +62,7 @@ export const startLocationTracking = async (onLog: (msg: string) => void) => {
 	//onLog("開始");
 	const token = await AsyncStorage.getItem('authToken');
     if (!token) {
-      //log('トークン未取得のため、追跡開始スキップ');
+      removeAllTargetLocations();
       return;
     }
 	Sound.loadSound();
@@ -131,13 +132,13 @@ export const startLocationTracking = async (onLog: (msg: string) => void) => {
   		pausesUpdatesAutomatically: false,
 	  });
 	}
-	setInterval(async () => {
-		const hasStarted = await Location.hasStartedLocationUpdatesAsync(LOCATION_TASK_NAME);
-		if (!hasStarted) {
-			console.warn("バックグラウンドタスクが停止しています。再起動を試みます。");
-			await startLocationTracking(() => {});
-		}
-	}, 1000 * 60 * 10); // 10分ごとにチェック
+	// setInterval(async () => {
+	// 	const hasStarted = await Location.hasStartedLocationUpdatesAsync(LOCATION_TASK_NAME);
+	// 	if (!hasStarted) {
+	// 		console.warn("バックグラウンドタスクが停止しています。再起動を試みます。");
+	// 		await startLocationTracking(() => {});
+	// 	}
+	// }, 1000 * 60 * 10); // 10分ごとにチェック
 
   };
   

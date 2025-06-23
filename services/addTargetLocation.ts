@@ -1,6 +1,6 @@
 import * as SecureStore from 'expo-secure-store';
 
-type TargetLocation = {
+export type TargetLocation = {
     alertId: number;
     lat: number;
     lon: number;
@@ -27,12 +27,13 @@ export const addTargetLocation = async (
     }else{
         locations[index] = { alertId, lat, lon };
     }
-  
   await SecureStore.setItemAsync(LOCATIONS_KEY, JSON.stringify(locations));
+  console.log("追加後" + await SecureStore.getItemAsync(LOCATIONS_KEY));
 };
 
 export const getTargetLocations = async (): Promise<TargetLocation[]> => {
   const data = await SecureStore.getItemAsync(LOCATIONS_KEY);
+  console.log(data ? JSON.parse(data) : []);
   return data ? JSON.parse(data) : [];
 };
 
@@ -43,6 +44,7 @@ export const removeTargetLocation = async (alertId: number) => {
   const updated = locations.filter((loc) => loc.alertId !== alertId);
 
   await SecureStore.setItemAsync(LOCATIONS_KEY, JSON.stringify(updated));
+  console.log("消した後は" + await SecureStore.getItemAsync(LOCATIONS_KEY));
 };
 
 export const updateTargetLocation = async (
