@@ -139,13 +139,6 @@ export default function StationList() {
             setIsPopupVisible={setIsPopupVisible}
             modifyPopup={modifyPopup}
           />
-          <View>
-          {targetItems.map((target, index) => (
-            <Text key={target.alertId || index}>
-              {index + 1}. {target.alertId}（緯度: {target.lat}, 経度: {target.lon}）
-            </Text>
-          ))}
-        </View>
         </View>
       );
 }
