@@ -29,12 +29,15 @@ TaskManager.defineTask(LOCATION_TASK_NAME, async ({ data, error }) => {
 		//log(`現在地: ${latitude}, ${longitude}`);
 		
 		const targets = await getTargetLocations();
-		//log(`📍 監視対象数: ${targets.length}`);
+		log(`📍 監視対象数: ${targets.length}`);
+		console.log("監視ログ" + targets.length);
 		for(const target of targets){
 			const distance = calculateDistance(latitude, longitude, target.lat, target.lon);
 			if (distance < 0.5) {
 			await sendAlarmNotification();
-			//log("アラーム鳴動！");
+			log("アラーム鳴動！");
+			}else{
+				console.log("距離遠い");
 			}
 		}
 	  }
