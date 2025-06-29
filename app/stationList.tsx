@@ -53,10 +53,10 @@ export default function StationList() {
         }
     }, [userId]);
 
-    useEffect(() => {
-      console.log('useEffect targetItems:', targetItems);
-      Alert.alert("ターゲット数" + targetItems.length + "今のターゲットは" + JSON.stringify(targetItems));
-    }, [targetItems]);
+    // useEffect(() => {
+    //   console.log('useEffect targetItems:', targetItems);
+    //   Alert.alert("ターゲット数" + targetItems.length + "今のターゲットは" + JSON.stringify(targetItems));
+    // }, [targetItems]);
 
     const insertPopup = () => {
         setButtonStatus("登録");
@@ -131,9 +131,9 @@ export default function StationList() {
             <TouchableOpacity style={styles.alertButton} onPress={insertPopup} activeOpacity={0.7}>
               <Text style={styles.alertButtonText}>アラート登録</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.alertButton} onPress={checkTargets} activeOpacity={0.7}>
+            {/* <TouchableOpacity style={styles.alertButton} onPress={checkTargets} activeOpacity={0.7}>
               <Text style={styles.alertButtonText}>アラート確認</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </View>
       
           <AlertModal
