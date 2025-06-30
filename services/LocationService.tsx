@@ -11,9 +11,14 @@ import { removeAllTargetLocations } from './addTargetLocation';
 
 // タスク名を決める
 const LOCATION_TASK_NAME = 'background-location-task';
+let taskDefined = false;
 
 // タスクを定義
-TaskManager.defineTask(LOCATION_TASK_NAME, async ({ data, error }) => {
+export const defineLocationTask = () => {
+	if(taskDefined){
+		return;
+	}
+	TaskManager.defineTask(LOCATION_TASK_NAME, async ({ data, error }) => {
 	if (error) {
 	  //log("エラー発生: " + error.message);
 	  return;
@@ -43,6 +48,8 @@ TaskManager.defineTask(LOCATION_TASK_NAME, async ({ data, error }) => {
 	  }
 	}
   });
+  taskDefined = true;
+}
   
 const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
     const toRad = (value: number) => (value * Math.PI) / 180;
