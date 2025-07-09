@@ -10,6 +10,7 @@ import LogoutComponent from '@/components/LogoutComponent';
 import AlertModal from '@/components/AlertModal';
 import { addTargetLocation, getTargetLocations, removeTargetLocation, removeAllTargetLocations } from '@/services/addTargetLocation';
 import { TargetLocation } from '@/services/addTargetLocation';
+import { getAlertNameByAlertId } from '@/services/getStationNameByAlertId';
 
 // アラートアイテムの型定義
 export type AlertItem = {
@@ -30,6 +31,24 @@ interface UserToken {
     iat: number;
     userId: number;
   }
+
+// export const getAlertNameByAlertId = async(alertId: Number) => {
+//       try{
+//             const response = await api.get("/getAlertNameByAlertId", {
+//                 headers: {
+//                     "Content-Type": "application/json",
+//                     "Accept": "application/json"
+//                 },
+//                 params: {
+//                     "alertId": alertId
+//                 }
+//             });            
+//             return JSON.stringify(response.data.stationName);
+//           }catch(e){
+//             console.log(e);
+//           }
+          
+// } 
 
 export default function StationList() {
     const [isPopupVisible, setIsPopupVisible] = useState<boolean>(false);
@@ -120,7 +139,14 @@ export default function StationList() {
     const checkTargets = async() => {
       const targets = await getTargetLocations();
       setTargetItems(targets);
+      let displayAlert = [];
+      for(const target of targets){
+        displayAlert.push(await getAlertNameByAlertId(target.alertId));
+      }
+      console.log("現在のターゲットは" + displayAlert);
+      Alert.alert("現在のターゲットは" + displayAlert);
     }
+
 
     return (
         <View style={styles.container}>
@@ -131,9 +157,9 @@ export default function StationList() {
             <TouchableOpacity style={styles.alertButton} onPress={insertPopup} activeOpacity={0.7}>
               <Text style={styles.alertButtonText}>アラート登録</Text>
             </TouchableOpacity>
-            {/* <TouchableOpacity style={styles.alertButton} onPress={checkTargets} activeOpacity={0.7}>
+            <TouchableOpacity style={styles.alertButton} onPress={checkTargets} activeOpacity={0.7}>
               <Text style={styles.alertButtonText}>アラート確認</Text>
-            </TouchableOpacity> */}
+            </TouchableOpacity>
           </View>
       
           <AlertModal

@@ -8,6 +8,8 @@ import { sendAlarmNotification } from '@/lib/notifications';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Alert, Linking } from 'react-native';
 import { removeAllTargetLocations } from './addTargetLocation';
+import { getAlertNameByAlertId } from './getStationNameByAlertId';
+import { playSound } from './SoundService';
 
 // タスク名を決める
 const LOCATION_TASK_NAME = 'background-location-task';
@@ -39,7 +41,13 @@ export const defineLocationTask = () => {
 		for(const target of targets){
 			const distance = calculateDistance(latitude, longitude, target.lat, target.lon);
 			if (distance < 0.5) {
-			await sendAlarmNotification();
+			try{
+				const targetStation = await getAlertNameByAlertId(target.alertId);
+				await sendAlarmNotification(targetStation ?? "");
+			}catch(error){
+				await playSound();
+				console.log(error);
+			}
 			log("アラーム鳴動！");
 			}else{
 				console.log("距離遠い");
