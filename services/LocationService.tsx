@@ -11,7 +11,7 @@ import { removeAllTargetLocations } from './addTargetLocation';
 import { getAlertNameByAlertId } from './getStationNameByAlertId';
 import { playSound } from './SoundService';
 
-// タスク名を決める
+// タスク名を決める	
 const LOCATION_TASK_NAME = 'background-location-task';
 let taskDefined = false;
 
