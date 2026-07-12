@@ -8,12 +8,19 @@ import { sendAlarmNotification } from '@/lib/notifications';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Alert, Linking } from 'react-native';
 import { removeAllTargetLocations } from './addTargetLocation';
+import { getAlertNameByAlertId } from './getStationNameByAlertId';
+import { playSound } from './SoundService';
 
-// タスク名を決める
+// タスク名を決める	
 const LOCATION_TASK_NAME = 'background-location-task';
+let taskDefined = false;
 
 // タスクを定義
-TaskManager.defineTask(LOCATION_TASK_NAME, async ({ data, error }) => {
+export const defineLocationTask = () => {
+	if(taskDefined){
+		return;
+	}
+	TaskManager.defineTask(LOCATION_TASK_NAME, async ({ data, error }) => {
 	if (error) {
 	  //log("エラー発生: " + error.message);
 	  return;
@@ -29,17 +36,28 @@ TaskManager.defineTask(LOCATION_TASK_NAME, async ({ data, error }) => {
 		//log(`現在地: ${latitude}, ${longitude}`);
 		
 		const targets = await getTargetLocations();
-		//log(`📍 監視対象数: ${targets.length}`);
+		log(`📍 監視対象数: ${targets.length}`);
+		console.log("監視ログ" + targets.length);
 		for(const target of targets){
 			const distance = calculateDistance(latitude, longitude, target.lat, target.lon);
 			if (distance < 0.5) {
-			await sendAlarmNotification();
-			//log("アラーム鳴動！");
+			try{
+				const targetStation = await getAlertNameByAlertId(target.alertId);
+				await sendAlarmNotification(targetStation ?? "");
+			}catch(error){
+				await playSound();
+				console.log(error);
+			}
+			log("アラーム鳴動！");
+			}else{
+				console.log("距離遠い");
 			}
 		}
 	  }
 	}
   });
+  taskDefined = true;
+}
   
 const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
     const toRad = (value: number) => (value * Math.PI) / 180;

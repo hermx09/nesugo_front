@@ -115,6 +115,8 @@ export default function LoginView({ returnText }: returnProps) {
           } 
         setTimeout(() => {
 			addUserName(userName);
+      startLocationTracking((msg) => {
+        });
           router.push('/stationList');
         }, 500);
       }

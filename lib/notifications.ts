@@ -21,11 +21,11 @@ export const requestNotificationPermission = async () => {
   }
 }
 
-export const sendAlarmNotification = async () => {
+export const sendAlarmNotification = async (targetStation: string) => {
     await Notifications.scheduleNotificationAsync({
       content: {
         title: '降車アラーム',
-        body: '目的地に近づいています！',
+        body: '目的地に近づいています！' + targetStation,
         sound: 'startsound.caf',
         priority: Notifications.AndroidNotificationPriority.HIGH,
       },
